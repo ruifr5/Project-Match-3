@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://scripts/grid_player1.gd" type="Script" id=1]
+[ext_resource path="res://scripts/grid_player2.gd" type="Script" id=2]
+
+[node name="game_window" type="Node2D"]
+
+[node name="background" type="TextureRect" parent="."]
+margin_left = 1.05945
+margin_right = 577.059
+margin_bottom = 1024.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="grid_player1" type="Node2D" parent="."]
+script = ExtResource( 1 )
+width = 8
+height = 5
+x_start = 64
+y_start = 960
+offset = 64
+
+[node name="grid_player2" type="Node2D" parent="."]
+script = ExtResource( 2 )
+width = 8
+height = 5
+x_start = 64
+y_start = 320
+offset = 64
