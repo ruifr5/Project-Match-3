@@ -20,6 +20,9 @@ var touch_down = Vector2(0,0)
 var touch_up = Vector2(0,0)
 var controlling = false
 
+var movement_start_grid_position
+var old_movement_direction
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -92,52 +95,85 @@ func touch_input():
 		var grid_position = pixel_to_grid(touch_down)
 		if is_in_grid(grid_position.x, grid_position.y):
 			controlling = true
-			
+			movement_start_grid_position = grid_position
+		
 	if Input.is_action_just_released("ui_touch"):
-		touch_up = get_global_mouse_position()
-		var grid_position = pixel_to_grid(touch_up)
-		if is_in_grid(grid_position.x, grid_position.y) && controlling:
-			var grid_touch_down = pixel_to_grid(touch_down)
-			var difference = touch_difference(grid_touch_down, pixel_to_grid(touch_up))
-			if difference:
-				swap_pieces(grid_touch_down.x, grid_touch_down.y, difference)
-		controlling = false
+		if controlling:
+			controlling = false
+			all_pieces_movement_end()
+			reset_pieces_pixel_position()
 
 
-func swap_pieces(x, y, direction):
-	var first_piece = all_pieces[x][y]
-	var other_piece = all_pieces[x + direction.x][y + direction.y]
-	all_pieces[x][y] = other_piece
-	all_pieces[x + direction.x][y + direction.y] = first_piece
-	first_piece.move(grid_to_pixel(Vector2(x + direction.x, y + direction.y)))
-	other_piece.move(grid_to_pixel(Vector2(x, y)))
-
-#
-#func move_pieces(x, y, direction):
-#	if abs(direction.x) > 0:
-#		for column in all_pieces:
-#			column[y].move()
-#	elif abs(direction.y) > 0:
-#		for piece in all_pieces[x]:
-#			piece.move()
+func move_pieces(x, y, direction):
+	direction = zero_smallest_dimention(direction)
+	if abs(direction.x) > 0:
+		for column in all_pieces:
+			column[y].move(direction)
+	elif abs(direction.y) > 0:
+		for row in all_pieces[x]:
+			row.move(direction)
 
 
-func touch_difference(touch_down, touch_up):
-	var difference = touch_up - touch_down
-	var direction
-	if abs(difference.x) > abs(difference.y):
-		if difference.x > 0:
-			direction = Vector2(1, 0)
-		if difference.x < 0:
-			direction = Vector2(-1, 0)
-	if abs(difference.x) < abs(difference.y):
-		if difference.y > 0:
-			direction = Vector2(0, 1)
-		if difference.y < 0:
-			direction = Vector2(0, -1)
-	return direction
+func reset_pieces_pixel_position():
+	for x in width:
+		for y in height:
+			var piece = all_pieces[x][y]
+			piece.movement_stop()
+			piece.position = grid_to_pixel(Vector2(x,y))
+
+
+func reset_column_pixel_position(column_id):
+	var row_id = 0
+	for piece in all_pieces[column_id]:
+		piece.movement_stop()
+		piece.position = grid_to_pixel(Vector2(column_id, row_id))
+		row_id += 1
+
+
+func reset_row_pixel_position(row_id):
+	var column_id = 0
+	for column in all_pieces:
+		column[row_id].movement_stop()
+		column[row_id].position = grid_to_pixel(Vector2(column_id, row_id))
+		column_id += 1
+
+
+func all_pieces_movement_end():
+	movement_start_grid_position = null
+	for column in all_pieces:
+		for row in column:
+			row.movement_stop()
+
+
+# difference between touchdown and touchup
+func touch_difference(down, up):
+	var difference = up - down
+	return zero_smallest_dimention(difference)
+
+
+func zero_smallest_dimention(position):
+	if abs(position.x) > abs(position.y):
+		position.y = 0
+	else:
+		position.x = 0
+	return position
+
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	touch_input()
 
+
+func _input(event):
+	if event is InputEventMouseMotion && controlling:
+		var new_direction = zero_smallest_dimention(get_global_mouse_position() - touch_down)
+		
+		if !old_movement_direction:
+			old_movement_direction = new_direction
+		elif abs(old_movement_direction.x) == 0 && abs(new_direction.x) != 0:
+			reset_column_pixel_position(movement_start_grid_position.x)
+		elif abs(old_movement_direction.y) == 0 &&  abs(new_direction.y) != 0:
+			reset_row_pixel_position(movement_start_grid_position.y)
+			
+		move_pieces(movement_start_grid_position.x, movement_start_grid_position.y, new_direction)
+		old_movement_direction = new_direction

@@ -1,0 +1,1 @@
+resolver "jiggle" no centro quando o drag muda de eixo
