@@ -85,6 +85,10 @@ func pixel_to_grid(position):
 	return Vector2(new_x, new_y)
 
 
+func centered_pixel_in_grid(position):
+	return grid_to_pixel(pixel_to_grid(touch_down))
+
+
 func is_in_grid(x, y):
 	if x >= 0 && x < width:
 		if y >= 0 && y < height:
@@ -136,8 +140,9 @@ func reset_column_pixel_position(column_id):
 func reset_row_pixel_position(row_id):
 	var column_id = 0
 	for column in all_pieces:
-		column[row_id].movement_stop()
-		column[row_id].position = grid_to_pixel(Vector2(column_id, row_id))
+		var piece = column[row_id]
+		piece.movement_stop()
+		piece.position = grid_to_pixel(Vector2(column_id, row_id))
 		column_id += 1
 
 
@@ -162,6 +167,22 @@ func zero_smallest_dimention(position):
 	return position
 
 
+func clamp_movement_distance(distance):
+#	moving right
+	if distance.x > 0:
+		distance.x = clamp(distance.x, 0, x_start * width - centered_pixel_in_grid(touch_down).x)
+#	moving left
+	elif distance.x < 0:
+		distance.x = clamp(distance.x, x_start - centered_pixel_in_grid(touch_down).x, 0)
+#	moving up
+	elif distance.y < 0:
+		distance.y = clamp(distance.y, y_start + -offset * (height - 1) - centered_pixel_in_grid(touch_down).y, 0)
+#	moving down
+	elif distance.y > 0:
+		distance.y = clamp(distance.y, 0, y_start - centered_pixel_in_grid(touch_down).y)
+	return distance
+
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
 	touch_input()
@@ -169,8 +190,8 @@ func _process(_delta):
 
 func _input(event):
 	if event is InputEventMouseMotion && controlling:
-		var new_direction = zero_smallest_dimention(get_global_mouse_position() - touch_down)
-		
+		var new_direction = clamp_movement_distance(zero_smallest_dimention(get_global_mouse_position() - touch_down))
+
 		if !old_movement_direction:
 			old_movement_direction = new_direction
 		elif abs(old_movement_direction.x) == 0 && abs(new_direction.x) != 0:

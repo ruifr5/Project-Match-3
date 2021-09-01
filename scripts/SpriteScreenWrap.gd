@@ -4,7 +4,6 @@ extends Sprite
 const AXIS = {
 	HORIZONTAL = "x",
 	VERTICAL = "y",
-	BOTH = "x&y"
 }
 
 # Expect the area to be defined in the Inspector Tool
@@ -87,13 +86,13 @@ func applyWrap(axis):
 	if global_position[axis] <= wrapArea.position[axis] - halfSpriteSize[axis]:
 		completeWrap(axis, wrapArea.size[axis])
 	# Check if the Sprite has started to wrap (left or top)
-	elif global_position[axis] <= wrapArea.position[axis] + halfSpriteSize[axis] - 1:
+	elif global_position[axis] <= wrapArea.position[axis] + halfSpriteSize[axis] - 1: # -1px to prevent unecessary spawn of mirrors
 		mirrorWrap(axis, wrapArea.size[axis])
 	# Check if the Sprite has gone off the screen (right or bottom)
 	elif global_position[axis] >= wrapArea.end[axis] + halfSpriteSize[axis]:
 		completeWrap(axis, -wrapArea.size[axis])
 	# Check if the Sprite has started to wrap (right or bottom)
-	elif global_position[axis] >= wrapArea.end[axis] - halfSpriteSize[axis] + 1:
+	elif global_position[axis] >= wrapArea.end[axis] - halfSpriteSize[axis] + 1: # +1px to prevent unecessary spawn of mirrors
 		mirrorWrap(axis, -wrapArea.size[axis])
 
 # Move the Sprite to the opposite side and delete of the copy 
@@ -132,4 +131,7 @@ func removeMirror(axis):
 	if has_node(axis):
 		get_node(axis).queue_free()
 
-
+func removeMirrors():
+	for key in AXIS:
+		if has_node(AXIS[key]):
+			get_node(AXIS[key]).queue_free()

@@ -4,6 +4,7 @@ export var color: String;
 
 var move_tween: Tween
 var movement_start_position
+var old_movement_distance
 
 
 # Called when the node enters the scene tree for the first time.
@@ -14,14 +15,28 @@ func _ready():
 func move(difference):
 	if !movement_start_position:
 		movement_start_position = position
+	if !old_movement_distance:
+		old_movement_distance = difference
 	
-	move_tween.interpolate_property(self, "position", position, movement_start_position + difference, .1, Tween.TRANS_SINE, Tween.EASE_OUT)
+	move_tween.interpolate_property(self, "position", position, movement_start_position + difference, .1, Tween.TRANS_EXPO, Tween.EASE_OUT)
 	move_tween.start()
+	
+	reset_mirrors_if_passed_origin(difference)
 
+
+func reset_mirrors_if_passed_origin(new_movement_distance):
+	if old_movement_distance.y < 0 && new_movement_distance.y > 0 || old_movement_distance.y > 0 && new_movement_distance.y < 0:
+		remove_mirrors()
+	old_movement_distance = new_movement_distance
 
 func movement_stop():
 	move_tween.stop_all()
 	movement_start_position = null
+	remove_mirrors()
+
+
+func remove_mirrors():
+	$SpriteScreenWrap.removeMirrors()
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
