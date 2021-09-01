@@ -20,6 +20,7 @@ height = 5
 x_start = 64
 y_start = 960
 offset = 64
+wrap_area = Rect2( 32, 672, 512, 320 )
 
 [node name="grid_player2" type="Node2D" parent="."]
 script = ExtResource( 2 )
@@ -28,3 +29,57 @@ height = 5
 x_start = 64
 y_start = 320
 offset = 64
+wrap_area = Rect2( 32, 32, 512, 320 )
+
+[node name="cover" type="Node2D" parent="."]
+visible = false
+
+[node name="ColorRect" type="ColorRect" parent="cover"]
+margin_left = 31.0
+margin_top = 352.0
+margin_right = 544.0
+margin_bottom = 672.0
+color = Color( 0.054902, 0.054902, 0.054902, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ColorRect2" type="ColorRect" parent="cover"]
+margin_left = -41.0
+margin_top = -67.0
+margin_right = 617.0
+margin_bottom = 32.0
+color = Color( 0.054902, 0.054902, 0.054902, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ColorRect5" type="ColorRect" parent="cover"]
+margin_left = -41.0
+margin_top = 992.762
+margin_right = 617.0
+margin_bottom = 1091.76
+color = Color( 0.054902, 0.054902, 0.054902, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ColorRect3" type="ColorRect" parent="cover"]
+margin_left = -42.0
+margin_top = 32.0
+margin_right = 31.0
+margin_bottom = 993.0
+color = Color( 0.054902, 0.054902, 0.054902, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ColorRect4" type="ColorRect" parent="cover"]
+margin_left = 544.0
+margin_top = 32.0
+margin_right = 617.0
+margin_bottom = 993.0
+color = Color( 0.054902, 0.054902, 0.054902, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}

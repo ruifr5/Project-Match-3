@@ -1,1 +1,2 @@
 resolver "jiggle" no centro quando o drag muda de eixo
+resolver problema de quando arrastas uma linha as vezes o wrap arround nao aparece logo

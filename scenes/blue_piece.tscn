@@ -6,5 +6,5 @@
 [node name="blue_piece" instance=ExtResource( 1 )]
 color = "blue"
 
-[node name="Sprite" parent="." index="0"]
+[node name="SpriteScreenWrap" parent="." index="0"]
 texture = ExtResource( 2 )

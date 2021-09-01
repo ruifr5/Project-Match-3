@@ -5,6 +5,7 @@ export (int) var height
 export (int) var x_start
 export (int) var y_start
 export (int) var offset
+export (Rect2) var wrap_area
 
 var possible_pieces = [
 	preload("res://scenes/blue_piece.tscn"),
@@ -45,13 +46,15 @@ func spawn_pieces():
 		for y in height:
 #			choose a random number and store it
 			var rand = floor(rand_range(0, possible_pieces.size()))
-#			instanciatee that piece from the array
+#			instanciate that piece from the array
 			var piece = possible_pieces[rand].instance()
 #			remove starting matches
 			var new_piece_id = 0
 			while match_at(x,y,piece.color) && new_piece_id < possible_pieces.size():
 				piece = possible_pieces[new_piece_id].instance()
 				new_piece_id += 1
+#			set wrap area information
+			piece.get_node("SpriteScreenWrap").wrapArea = wrap_area
 #			set position and save piece to array
 			piece.position = grid_to_pixel(Vector2(x,y))
 			add_child(piece)
