@@ -170,16 +170,16 @@ func zero_smallest_dimention(position):
 func clamp_movement_distance(distance):
 #	moving right
 	if distance.x > 0:
-		distance.x = clamp(distance.x, 0, x_start * width - centered_pixel_in_grid(touch_down).x)
+		distance.x = clamp(distance.x, 0, (x_start + offset * (width - 1)) - (x_start))
 #	moving left
 	elif distance.x < 0:
-		distance.x = clamp(distance.x, x_start - centered_pixel_in_grid(touch_down).x, 0)
+		distance.x = clamp(distance.x, (x_start) - (x_start + offset * (width - 1)), 0)
 #	moving up
 	elif distance.y < 0:
-		distance.y = clamp(distance.y, y_start + -offset * (height - 1) - centered_pixel_in_grid(touch_down).y, 0)
+		distance.y = clamp(distance.y, (y_start) - (y_start + offset * (height - 1)), 0)
 #	moving down
 	elif distance.y > 0:
-		distance.y = clamp(distance.y, 0, y_start - centered_pixel_in_grid(touch_down).y)
+		distance.y = clamp(distance.y, 0, (y_start + offset * (height - 1)) - (y_start))
 	return distance
 
 

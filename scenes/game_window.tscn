@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://scripts/grid_player1.gd" type="Script" id=1]
 [ext_resource path="res://scripts/grid_player2.gd" type="Script" id=2]
 [ext_resource path="res://scripts/fps.gd" type="Script" id=3]
+[ext_resource path="res://scripts/cover.gd" type="Script" id=4]
 
 [node name="game_window" type="Node2D"]
 
@@ -33,9 +34,12 @@ offset = 64
 wrap_area = Rect2( 32, 32, 512, 320 )
 
 [node name="cover" type="Node2D" parent="."]
+visible = false
+script = ExtResource( 4 )
 __meta__ = {
 "_edit_group_": true
 }
+color = Color( 0.176471, 0.176471, 0.176471, 1 )
 
 [node name="ColorRect" type="ColorRect" parent="cover"]
 margin_left = 31.0
