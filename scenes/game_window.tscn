@@ -34,14 +34,13 @@ offset = 64
 wrap_area = Rect2( 32, 32, 512, 320 )
 
 [node name="cover" type="Node2D" parent="."]
-visible = false
 script = ExtResource( 4 )
 __meta__ = {
 "_edit_group_": true
 }
 color = Color( 0.176471, 0.176471, 0.176471, 1 )
 
-[node name="ColorRect" type="ColorRect" parent="cover"]
+[node name="mid" type="ColorRect" parent="cover"]
 margin_left = 31.0
 margin_top = 352.0
 margin_right = 544.0
@@ -51,28 +50,24 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ColorRect2" type="ColorRect" parent="cover"]
-margin_left = -41.0
-margin_top = -67.0
-margin_right = 617.0
+[node name="top" type="ColorRect" parent="cover"]
+margin_right = 576.0
 margin_bottom = 32.0
 color = Color( 0.054902, 0.054902, 0.054902, 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ColorRect5" type="ColorRect" parent="cover"]
-margin_left = -41.0
+[node name="bottom" type="ColorRect" parent="cover"]
 margin_top = 992.762
-margin_right = 617.0
-margin_bottom = 1091.76
+margin_right = 576.0
+margin_bottom = 1024.0
 color = Color( 0.054902, 0.054902, 0.054902, 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ColorRect3" type="ColorRect" parent="cover"]
-margin_left = -41.0
+[node name="left" type="ColorRect" parent="cover"]
 margin_top = 32.0
 margin_right = 31.0
 margin_bottom = 993.0
@@ -81,10 +76,10 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ColorRect4" type="ColorRect" parent="cover"]
+[node name="right" type="ColorRect" parent="cover"]
 margin_left = 544.0
 margin_top = 32.0
-margin_right = 617.0
+margin_right = 576.0
 margin_bottom = 993.0
 color = Color( 0.054902, 0.054902, 0.054902, 1 )
 __meta__ = {

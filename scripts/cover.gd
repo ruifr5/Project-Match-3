@@ -8,8 +8,3 @@ export (Color) var color
 func _ready():
 	for child in get_children():
 		child.color = color
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass

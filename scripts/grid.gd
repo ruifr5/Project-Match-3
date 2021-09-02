@@ -73,6 +73,41 @@ func match_at(x, y, color):
 	return false
 
 
+func find_matches():
+	for x in width:
+		for y in height:
+			if all_pieces[x][y]:
+				var current_color = all_pieces[x][y].color
+				if x > 0 && x < width - 1:
+					if all_pieces[x-1][y] && all_pieces[x+1][y]:
+						if all_pieces[x-1][y].color == current_color && all_pieces[x+1][y].color == current_color:
+							all_pieces[x-1][y].mark_matched()
+							all_pieces[x][y].mark_matched()
+							all_pieces[x+1][y].mark_matched()
+				if y > 0 && y < height - 1:
+					if all_pieces[x][y-1] && all_pieces[x][y+1]:
+						if all_pieces[x][y-1].color == current_color && all_pieces[x][y+1].color == current_color:
+							all_pieces[x][y-1].mark_matched()
+							all_pieces[x][y].mark_matched()
+							all_pieces[x][y+1].mark_matched()
+
+
+# método para match em "blob"
+#func spread_match(origin_x, origin_y, color):
+#	var piece = all_pieces[origin_x][origin_y]
+#	if (piece.matched):
+#		return
+#	piece.mark_matched()
+#	for x in range(-1,2):
+#		var new_x = origin_x + x
+#		if  new_x >= 0 && new_x < width && all_pieces[new_x][origin_y].color == color:
+#			spread_match(new_x, origin_y, color)
+#	for y in range(-1,2):
+#		var new_y = origin_y + y
+#		if  new_y >= 0 && new_y < height && all_pieces[origin_x][new_y].color == color:
+#			spread_match(origin_x, new_y, color)
+
+
 func grid_to_pixel(position):
 	var new_x = x_start + offset * position.x
 	var new_y = y_start + -offset * position.y
@@ -86,7 +121,7 @@ func pixel_to_grid(position):
 
 
 func centered_pixel_in_grid(position):
-	return grid_to_pixel(pixel_to_grid(touch_down))
+	return grid_to_pixel(pixel_to_grid(position))
 
 
 func is_in_grid(x, y):
@@ -104,11 +139,10 @@ func touch_input():
 			controlling = true
 			movement_start_grid_position = grid_position
 		
-	if Input.is_action_just_released("ui_touch"):
-		if controlling:
-			controlling = false
-			all_pieces_movement_end()
-			reset_pieces_pixel_position()
+	if Input.is_action_just_released("ui_touch") && controlling:
+		controlling = false
+		move_pieces_to_real_positions()
+		find_matches()
 
 
 func move_pieces(x, y, direction):
@@ -121,18 +155,38 @@ func move_pieces(x, y, direction):
 			row.move(direction)
 
 
+func move_pieces_to_real_positions():
+	for piece in get_children():
+		var real_position = pixel_to_grid(piece.position)
+#		overflow right
+		if real_position.x >= width:
+			real_position.x = real_position.x - width
+#		overflow left
+		if real_position.x < 0:
+			real_position.x = width + real_position.x
+#		overflow down
+		if real_position.y >= height:
+			real_position.y = real_position.y - height
+#		overflow up
+		if real_position.y < 0:
+			real_position.y = height + real_position.y
+			
+		all_pieces[real_position.x][real_position.y] = piece
+	reset_pieces_pixel_position()
+
+
 func reset_pieces_pixel_position():
 	for x in width:
 		for y in height:
 			var piece = all_pieces[x][y]
-			piece.movement_stop()
+			piece.stop_movement()
 			piece.position = grid_to_pixel(Vector2(x,y))
 
 
 func reset_column_pixel_position(column_id):
 	var row_id = 0
 	for piece in all_pieces[column_id]:
-		piece.movement_stop()
+		piece.stop_movement()
 		piece.position = grid_to_pixel(Vector2(column_id, row_id))
 		row_id += 1
 
@@ -141,16 +195,9 @@ func reset_row_pixel_position(row_id):
 	var column_id = 0
 	for column in all_pieces:
 		var piece = column[row_id]
-		piece.movement_stop()
+		piece.stop_movement()
 		piece.position = grid_to_pixel(Vector2(column_id, row_id))
 		column_id += 1
-
-
-func all_pieces_movement_end():
-	movement_start_grid_position = null
-	for column in all_pieces:
-		for row in column:
-			row.movement_stop()
 
 
 # difference between touchdown and touchup
@@ -198,6 +245,6 @@ func _input(event):
 			reset_column_pixel_position(movement_start_grid_position.x)
 		elif abs(old_movement_direction.y) == 0 &&  abs(new_direction.y) != 0:
 			reset_row_pixel_position(movement_start_grid_position.y)
-			
+		
 		move_pieces(movement_start_grid_position.x, movement_start_grid_position.y, new_direction)
 		old_movement_direction = new_direction

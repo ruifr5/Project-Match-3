@@ -5,6 +5,7 @@ export var color: String;
 var move_tween: Tween
 var movement_start_position
 var old_movement_distance
+var matched = false
 
 
 # Called when the node enters the scene tree for the first time.
@@ -29,7 +30,8 @@ func reset_mirrors_if_passed_origin(new_movement_distance):
 		remove_mirrors()
 	old_movement_distance = new_movement_distance
 
-func movement_stop():
+
+func stop_movement():
 	move_tween.stop_all()
 	movement_start_position = null
 	remove_mirrors()
@@ -38,6 +40,11 @@ func movement_stop():
 func remove_mirrors():
 	$SpriteScreenWrap.removeMirrors()
 
+
+
+func mark_matched():
+	matched = true
+	$SpriteScreenWrap.modulate = Color(1, 1, 1, 0.3)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
