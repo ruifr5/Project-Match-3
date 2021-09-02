@@ -124,9 +124,9 @@ func centered_pixel_in_grid(position):
 	return grid_to_pixel(pixel_to_grid(position))
 
 
-func is_in_grid(x, y):
-	if x >= 0 && x < width:
-		if y >= 0 && y < height:
+func is_in_grid(grid_position):
+	if grid_position.x >= 0 && grid_position.x < width:
+		if grid_position.y >= 0 && grid_position.y < height:
 			return true;
 	return false
 
@@ -134,10 +134,10 @@ func is_in_grid(x, y):
 func touch_input():
 	if Input.is_action_just_pressed("ui_touch"):
 		touch_down = get_global_mouse_position()
-		var grid_position = pixel_to_grid(touch_down)
-		if is_in_grid(grid_position.x, grid_position.y):
+		var touch_down_grid_position = pixel_to_grid(touch_down)
+		if is_in_grid(touch_down_grid_position):
 			controlling = true
-			movement_start_grid_position = grid_position
+			movement_start_grid_position = touch_down_grid_position
 		
 	if Input.is_action_just_released("ui_touch") && controlling:
 		controlling = false
@@ -145,13 +145,13 @@ func touch_input():
 		find_matches()
 
 
-func move_pieces(x, y, direction):
+func move_pieces(position, direction):
 	direction = zero_smallest_dimention(direction)
 	if abs(direction.x) > 0:
 		for column in all_pieces:
-			column[y].move(direction)
+			column[position.y].move(direction)
 	elif abs(direction.y) > 0:
-		for row in all_pieces[x]:
+		for row in all_pieces[position.x]:
 			row.move(direction)
 
 
@@ -200,12 +200,6 @@ func reset_row_pixel_position(row_id):
 		column_id += 1
 
 
-# difference between touchdown and touchup
-func touch_difference(down, up):
-	var difference = up - down
-	return zero_smallest_dimention(difference)
-
-
 func zero_smallest_dimention(position):
 	if abs(position.x) > abs(position.y):
 		position.y = 0
@@ -246,5 +240,5 @@ func _input(event):
 		elif abs(old_movement_direction.y) == 0 &&  abs(new_direction.y) != 0:
 			reset_row_pixel_position(movement_start_grid_position.y)
 		
-		move_pieces(movement_start_grid_position.x, movement_start_grid_position.y, new_direction)
+		move_pieces(movement_start_grid_position, new_direction)
 		old_movement_direction = new_direction
