@@ -73,7 +73,9 @@ func match_at(x, y, color):
 	return false
 
 
+# returns true if a match was found
 func find_matches():
+	var match_found = false
 	for x in width:
 		for y in height:
 			if all_pieces[x][y]:
@@ -84,12 +86,15 @@ func find_matches():
 							all_pieces[x-1][y].mark_matched()
 							all_pieces[x][y].mark_matched()
 							all_pieces[x+1][y].mark_matched()
+							match_found = true
 				if y > 0 && y < height - 1:
 					if all_pieces[x][y-1] && all_pieces[x][y+1]:
 						if all_pieces[x][y-1].color == current_color && all_pieces[x][y+1].color == current_color:
 							all_pieces[x][y-1].mark_matched()
 							all_pieces[x][y].mark_matched()
 							all_pieces[x][y+1].mark_matched()
+							match_found = true
+	return match_found
 
 
 # método para match em "blob"
@@ -141,8 +146,12 @@ func touch_input():
 		
 	if Input.is_action_just_released("ui_touch") && controlling:
 		controlling = false
-		move_pieces_to_real_positions()
-		find_matches()
+		var grid_backup = all_pieces.duplicate(true)
+		update_pieces_grid_position_to_match_pixel_position()
+#		reset positions if there was no match
+		if !find_matches():
+			all_pieces = grid_backup
+		reset_pieces_pixel_position()
 
 
 func move_pieces(position, direction):
@@ -155,7 +164,7 @@ func move_pieces(position, direction):
 			row.move(direction)
 
 
-func move_pieces_to_real_positions():
+func update_pieces_grid_position_to_match_pixel_position():
 	for piece in get_children():
 		var real_position = pixel_to_grid(piece.position)
 #		overflow right
@@ -172,7 +181,6 @@ func move_pieces_to_real_positions():
 			real_position.y = height + real_position.y
 			
 		all_pieces[real_position.x][real_position.y] = piece
-	reset_pieces_pixel_position()
 
 
 func reset_pieces_pixel_position():
