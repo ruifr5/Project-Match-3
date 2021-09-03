@@ -10,15 +10,3 @@ script = ExtResource( 1 )
 modulate = Color( 1, 1, 1, 1 )
 
 [node name="move_tween" type="Tween" parent="."]
-
-[node name="position_x" type="Label" parent="."]
-visible = false
-margin_left = -26.1625
-margin_top = -11.8921
-margin_right = 13.8375
-margin_bottom = 2.10791
-rect_scale = Vector2( 2, 2 )
-text = "123"
-__meta__ = {
-"_edit_use_anchors_": false
-}

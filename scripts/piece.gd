@@ -48,7 +48,5 @@ func mark_matched():
 	$SpriteScreenWrap.modulate = Color(1, 1, 1, 0.3)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-#	todo: apagar
-	$position_x.text = str(round(position.y))
-	pass
+#func _process(delta):
+#	pass

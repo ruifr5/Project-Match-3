@@ -13,9 +13,11 @@ export (float) var collapse_seconds = 0.5
 
 
 var possible_pieces = [
-	preload("res://scenes/blue_piece.tscn"),
-	preload("res://scenes/green_piece.tscn"),
-	preload("res://scenes/orange_piece.tscn")
+	preload("res://scenes/pieces/blue_piece.tscn"),
+	preload("res://scenes/pieces/green_piece.tscn"),
+	preload("res://scenes/pieces/orange_piece.tscn"),
+	preload("res://scenes/pieces/yellow_piece.tscn"),
+#	preload("res://scenes/pieces/pink_piece.tscn"),
 ]
 
 # piece array
