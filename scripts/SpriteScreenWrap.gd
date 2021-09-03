@@ -31,6 +31,11 @@ func setVerticalWrap(flag):
 	if !flag:
 		removeMirror(AXIS.VERTICAL)
 
+func enableVerticalWrapAfterDelay(delay_in_seconds):
+	if delay_in_seconds:
+		yield(get_tree().create_timer(delay_in_seconds), "timeout")
+	setVerticalWrap(true)
+
 # When the Sprite is in the scene tree and ready, calculate the sprite size
 # and half of it. I use two member variables here as I only wanted to calculate
 # this once. However, if you need to change the texture, you'd need to recalculate
@@ -124,6 +129,7 @@ func addMirror(axis, mirrorOffset):
 	mirrorSprite.position = Vector2(0, 0)
 	mirrorSprite.offset = mirrorOffset
 	add_child(mirrorSprite)
+#	mirrorSprite.modulate = Color.red
 
 
 # Finally, remove the node if it is a child 
