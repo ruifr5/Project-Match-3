@@ -138,8 +138,8 @@ func find_matches():
 							all_pieces[x][y].mark_matched()
 							all_pieces[x][y+1].mark_matched()
 							match_found = true
+	locked = match_found
 	if match_found:
-		locked = true
 		destroy_matched()
 	return match_found
 
@@ -320,8 +320,7 @@ func refill_grid():
 	spawn_pieces()
 #	wait for pieces to finish falling
 	yield(get_tree().create_timer(collapse_seconds), "timeout")
-	if !find_matches():
-		locked = false
+	find_matches()
 
 
 # debug function
