@@ -103,7 +103,8 @@ func spawn_pieces():
 				piece.move(grid_to_pixel(Vector2(x,y)), collapse_seconds, Tween.TRANS_EXPO, Tween.EASE_IN_OUT)
 #				re-enable vertical wrap arround after movement ends
 				thread.start(piece.get_node("SpriteScreenWrap"), "enableVerticalWrapAfterDelay", collapse_seconds)
-
+				thread.wait_to_finish()
+	
 
 func match_at(x, y, color):
 	if x > 1:
