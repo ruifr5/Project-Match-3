@@ -16,7 +16,7 @@ var possible_pieces = [
 	preload("res://scenes/pieces/blue_piece.tscn"),
 	preload("res://scenes/pieces/green_piece.tscn"),
 	preload("res://scenes/pieces/orange_piece.tscn"),
-	preload("res://scenes/pieces/yellow_piece.tscn"),
+#	preload("res://scenes/pieces/yellow_piece.tscn"),
 #	preload("res://scenes/pieces/pink_piece.tscn"),
 ]
 
@@ -58,6 +58,41 @@ func _input(event):
 		
 		move_pieces(movement_start_grid_position, new_direction)
 		old_movement_direction = new_direction
+		highlight_matches()
+
+
+# todo: criaçao continua de arrays, percorre 2 vezes o array todo, é cópia do find_matches, optimizar
+func highlight_matches():
+	var temp_arr = get_array_pixel_position_converted_to_grid_position()
+#	reset nos highlights
+	for x in width:
+		for y in height:
+			temp_arr[x][y].highlighted = false
+#	set higlights
+	for x in width:
+		for y in height:
+			var piece = temp_arr[x][y]
+			if piece:
+				var current_color = piece.color
+#				check horizontal match
+				if x > 0 && x < width - 1:
+					var left_piece = temp_arr[x-1][y]
+					var right_piece = temp_arr[x+1][y]
+					if left_piece && right_piece:
+						if left_piece.color == current_color && right_piece.color == current_color:
+							left_piece.highlighted = true
+							piece.highlighted = true
+							right_piece.highlighted = true
+#				check vertical match
+				if y > 0 && y < height - 1:
+					var up_piece = temp_arr[x][y-1]
+					var down_piece = temp_arr[x][y+1]
+					if up_piece && down_piece:
+						if up_piece.color == current_color && down_piece.color == current_color:
+							up_piece.highlighted = true
+							piece.highlighted = true
+							down_piece.highlighted = true
+
 
 
 func make_2d_array():
@@ -67,8 +102,8 @@ func make_2d_array():
 		for y in height:
 			array[x].append(null)
 	return array
-	
-	
+
+
 func spawn_pieces():
 	for x in width:
 		var empty_slots_above = 0
@@ -125,21 +160,28 @@ func find_matches():
 	var match_found = false
 	for x in width:
 		for y in height:
-			if all_pieces[x][y]:
-				var current_color = all_pieces[x][y].color
+			var piece = all_pieces[x][y]
+			if piece:
+				var current_color = piece.color
+#				check horizontal match
 				if x > 0 && x < width - 1:
-					if all_pieces[x-1][y] && all_pieces[x+1][y]:
-						if all_pieces[x-1][y].color == current_color && all_pieces[x+1][y].color == current_color:
-							all_pieces[x-1][y].mark_matched()
-							all_pieces[x][y].mark_matched()
-							all_pieces[x+1][y].mark_matched()
+					var left_piece = all_pieces[x-1][y]
+					var right_piece = all_pieces[x+1][y]
+					if left_piece && right_piece:
+						if left_piece.color == current_color && right_piece.color == current_color:
+							left_piece.mark_matched()
+							piece.mark_matched()
+							right_piece.mark_matched()
 							match_found = true
+#				check vertical match
 				if y > 0 && y < height - 1:
-					if all_pieces[x][y-1] && all_pieces[x][y+1]:
-						if all_pieces[x][y-1].color == current_color && all_pieces[x][y+1].color == current_color:
-							all_pieces[x][y-1].mark_matched()
-							all_pieces[x][y].mark_matched()
-							all_pieces[x][y+1].mark_matched()
+					var up_piece = all_pieces[x][y-1]
+					var down_piece = all_pieces[x][y+1]
+					if up_piece && down_piece:
+						if up_piece.color == current_color && down_piece.color == current_color:
+							up_piece.mark_matched()
+							piece.mark_matched()
+							down_piece.mark_matched()
 							match_found = true
 	locked = match_found
 	if match_found:
@@ -197,7 +239,7 @@ func touch_input():
 	if Input.is_action_just_released("ui_touch") && controlling:
 		controlling = false
 		var grid_backup = all_pieces.duplicate(true)
-		update_pieces_grid_position_to_match_pixel_position()
+		all_pieces = get_array_pixel_position_converted_to_grid_position()
 #		reset positions if there was no match
 		if !find_matches():
 			all_pieces = grid_backup
@@ -216,27 +258,31 @@ func move_pieces(position, direction):
 				row.move_as_group(direction)
 
 
-func update_pieces_grid_position_to_match_pixel_position():
-	var backup = all_pieces.duplicate(true)
-#	for piece in get_children():
+func get_array_pixel_position_converted_to_grid_position():
+	var updated_grid = make_2d_array()
 	for x in width:
 		for y in height:
-			var piece = backup[x][y]
+			var piece = all_pieces[x][y]
 			if piece:
-				var real_position = pixel_to_grid(piece.position)
-		#		overflow right
-				if real_position.x >= width:
-					real_position.x = real_position.x - width
-		#		overflow left
-				if real_position.x < 0:
-					real_position.x = width + real_position.x
-		#		overflow down
-				if real_position.y >= height:
-					real_position.y = real_position.y - height
-		#		overflow up
-				if real_position.y < 0:
-					real_position.y = height + real_position.y
-				all_pieces[real_position.x][real_position.y] = piece
+				var real_position = fix_wrapped_position(pixel_to_grid(piece.position))
+				updated_grid[real_position.x][real_position.y] = piece
+	return updated_grid
+
+
+func fix_wrapped_position(grid_position):
+#		overflow right
+	if grid_position.x >= width:
+		grid_position.x = grid_position.x - width
+#		overflow left
+	if grid_position.x < 0:
+		grid_position.x = width + grid_position.x
+#		overflow down
+	if grid_position.y >= height:
+		grid_position.y = grid_position.y - height
+#		overflow up
+	if grid_position.y < 0:
+		grid_position.y = height + grid_position.y
+	return grid_position
 
 
 func reset_pieces_pixel_position():
@@ -327,11 +373,11 @@ func refill_grid():
 
 
 # debug function
-func print_colors():
+func print_colors(arr):
 	var toprint = make_2d_array()
 	for x in width:
 		for y in height:
-			toprint[x][y] = (all_pieces[x][y].color)
+			toprint[x][y] = (arr[x][y].color)
 	for col in toprint:
 		print(col)
 	print("-------------------------------------------------------")

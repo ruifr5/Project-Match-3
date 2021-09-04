@@ -6,6 +6,7 @@ var move_tween: Tween
 var movement_start_position
 var old_movement_distance
 var matched = false
+var highlighted = false
 
 
 # Called when the node enters the scene tree for the first time.
@@ -47,6 +48,16 @@ func mark_matched():
 	matched = true
 	$SpriteScreenWrap.modulate = Color(1, 1, 1, 0.3)
 
+
+func check_if_highlighted():
+	if matched:
+		return
+	elif highlighted:
+		$SpriteScreenWrap.modulate = Color(1.2, 1.2, 1.2, 1.25)
+	else:
+		$SpriteScreenWrap.modulate = Color(1, 1, 1, 1)
+
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
+func _process(delta):
+	check_if_highlighted()

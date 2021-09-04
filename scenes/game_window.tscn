@@ -31,9 +31,6 @@ x_start = 64
 y_start = 320
 offset = 64
 wrap_area = Rect2( 32, 32, 512, 320 )
-destroy_timer = 0.5
-collapse_timer = 0.5
-refill_timer = 0.5
 
 [node name="cover" type="Node2D" parent="."]
 script = ExtResource( 4 )
