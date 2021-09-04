@@ -16,12 +16,15 @@ var possible_pieces = [
 	preload("res://scenes/pieces/blue_piece.tscn"),
 	preload("res://scenes/pieces/green_piece.tscn"),
 	preload("res://scenes/pieces/orange_piece.tscn"),
-#	preload("res://scenes/pieces/yellow_piece.tscn"),
-#	preload("res://scenes/pieces/pink_piece.tscn"),
+	preload("res://scenes/pieces/yellow_piece.tscn"),
+	preload("res://scenes/pieces/pink_piece.tscn"),
 ]
 
 # piece array
 var all_pieces
+
+# count of how many of each piece there is, { color : count }
+var piece_count_dict =  {}
 
 # touch variables
 var touch_down = Vector2(0,0)
@@ -36,6 +39,7 @@ var old_movement_direction
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	randomize()
+	init_piece_count_array()
 	all_pieces = make_2d_array()
 	spawn_pieces()
 
@@ -59,6 +63,13 @@ func _input(event):
 		move_pieces(movement_start_grid_position, new_direction)
 		old_movement_direction = new_direction
 		highlight_matches()
+
+
+func init_piece_count_array():
+	for type in possible_pieces:
+		var piece = type.instance()
+		piece_count_dict[piece.color] = 0
+		piece.queue_free()
 
 
 # todo: criaçao continua de arrays, percorre 2 vezes o array todo, é cópia do find_matches, optimizar
@@ -104,6 +115,18 @@ func make_2d_array():
 	return array
 
 
+func get_lowest_count_piece_idx():
+	var to_return
+	var lowest_count = INF
+	var idx = 0
+	for key in piece_count_dict.keys():
+		if piece_count_dict[key] < lowest_count:
+			lowest_count = piece_count_dict[key]
+			to_return = idx
+		idx += 1
+	return to_return
+
+
 func spawn_pieces():
 	for x in width:
 		var empty_slots_above = 0
@@ -116,10 +139,12 @@ func spawn_pieces():
 	#			instanciate that piece from the array
 				var piece = possible_pieces[rand].instance()
 	#			remove starting matches
-				var new_piece_id = 0
-				while match_at(x,y,piece.color) && new_piece_id < possible_pieces.size():
+				var new_piece_id = get_lowest_count_piece_idx()
+				var count = 0
+				while match_at(x,y,piece.color) && count < possible_pieces.size():
 					piece = possible_pieces[new_piece_id].instance()
-					new_piece_id += 1
+					new_piece_id = 0 if new_piece_id >= possible_pieces.size() else new_piece_id + 1
+					count += 1
 	#			set wrap area information
 				piece.get_node("SpriteScreenWrap").wrapArea = wrap_area
 #				count empty slots above to determine the spawn offset for each piece
@@ -131,6 +156,7 @@ func spawn_pieces():
 				piece.position = grid_to_pixel(Vector2(x, height + spawn_offset))
 				add_child(piece)
 				all_pieces[x][y] = piece
+				piece_count_dict[piece.color] += 1
 #				increment spawn offset
 				if spawn_offset < empty_slots_above:
 					spawn_offset += 1
@@ -244,6 +270,7 @@ func touch_input():
 		if !find_matches():
 			all_pieces = grid_backup
 		reset_pieces_pixel_position()
+		highlight_matches()
 
 
 func move_pieces(position, direction):
@@ -342,7 +369,11 @@ func destroy_matched():
 	yield(get_tree().create_timer(destroy_timer), "timeout")
 	for x in width:
 		for y in height:
-			if all_pieces[x][y] && all_pieces[x][y].matched:
+			var piece = all_pieces[x][y]
+			if piece && piece.matched:
+#				decrement count
+				piece_count_dict[piece.color] -= 1
+#				destroy piece
 				all_pieces[x][y].queue_free()
 				all_pieces[x][y] = null
 	collapse_columns()
