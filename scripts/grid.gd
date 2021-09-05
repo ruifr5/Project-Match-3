@@ -22,6 +22,7 @@ var possible_pieces = [
 
 # piece array
 var all_pieces
+var matched_pieces = []
 
 # count of how many of each piece there is, { color : count }
 var piece_count_dict =  {}
@@ -46,7 +47,8 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
-	touch_input()
+	if !locked:
+		touch_input()
 
 
 func _input(event):
@@ -141,9 +143,9 @@ func spawn_pieces():
 	#			remove starting matches
 				var new_piece_id = get_lowest_count_piece_idx()
 				var count = 0
-				while match_at(x,y,piece.color) && count < possible_pieces.size():
+				while match_at(x, y, piece.color) && count < possible_pieces.size():
 					piece = possible_pieces[new_piece_id].instance()
-					new_piece_id = 0 if new_piece_id >= possible_pieces.size() else new_piece_id + 1
+					new_piece_id = 0 if new_piece_id + 1 >= possible_pieces.size() else new_piece_id + 1
 					count += 1
 	#			set wrap area information
 				piece.get_node("SpriteScreenWrap").wrapArea = wrap_area
@@ -195,9 +197,7 @@ func find_matches():
 					var right_piece = all_pieces[x+1][y]
 					if left_piece && right_piece:
 						if left_piece.color == current_color && right_piece.color == current_color:
-							left_piece.mark_matched()
-							piece.mark_matched()
-							right_piece.mark_matched()
+							mark_as_matched([left_piece, piece, right_piece])
 							match_found = true
 #				check vertical match
 				if y > 0 && y < height - 1:
@@ -205,14 +205,19 @@ func find_matches():
 					var down_piece = all_pieces[x][y+1]
 					if up_piece && down_piece:
 						if up_piece.color == current_color && down_piece.color == current_color:
-							up_piece.mark_matched()
-							piece.mark_matched()
-							down_piece.mark_matched()
+							mark_as_matched([up_piece, piece, down_piece])
 							match_found = true
 	locked = match_found
 	if match_found:
 		destroy_matched()
 	return match_found
+
+
+func mark_as_matched(array: Array):
+	for piece in array:
+		piece.mark_matched()
+		if !matched_pieces.has(piece):
+			matched_pieces.append(piece)
 
 
 # método para match em "blob"
@@ -255,7 +260,7 @@ func is_in_grid(grid_position):
 
 
 func touch_input():
-	if Input.is_action_just_pressed("ui_touch") && !locked:
+	if Input.is_action_just_pressed("ui_touch"):
 		touch_down = get_global_mouse_position()
 		var touch_down_grid_position = pixel_to_grid(touch_down)
 		if is_in_grid(touch_down_grid_position):
@@ -367,15 +372,14 @@ func clamp_movement_distance(distance):
 func destroy_matched():
 #	wait before starting
 	yield(get_tree().create_timer(destroy_timer), "timeout")
-	for x in width:
-		for y in height:
-			var piece = all_pieces[x][y]
-			if piece && piece.matched:
-#				decrement count
-				piece_count_dict[piece.color] -= 1
-#				destroy piece
-				all_pieces[x][y].queue_free()
-				all_pieces[x][y] = null
+	for piece in matched_pieces:
+#		decrement count
+		piece_count_dict[piece.color] -= 1
+#		destroy piece
+		piece.queue_free()
+		var piece_position = pixel_to_grid(piece.position)
+		all_pieces[piece_position.x][piece_position.y] = null
+	matched_pieces.clear()
 	collapse_columns()
 
 
