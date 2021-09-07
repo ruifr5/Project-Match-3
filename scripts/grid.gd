@@ -22,25 +22,23 @@ var possible_pieces = [
 
 # piece arrays
 var all_pieces
-#var matched_pieces = []
 var matched_pieces_vertical = []
 var matched_pieces_horizontal = []
-var disabled_positions: PoolVector2Array = []
+var disabled_positions: PoolVector2Array = [] # not used yet
 
 # count of how many of each piece there is, { color : count }
 var piece_count_dict =  {}
 
 # touch variables
-var touch_down = Vector2(0,0)
-var touch_up = Vector2(0,0)
+var touch_down: Vector2
+var touch_up: Vector2
 var controlling = false
 var locked = false
-
 var movement_start_grid_position
 var old_movement_direction
 
 # signals
-signal matched(grid_position, color, count)
+signal matched(grid_positions, color, count)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -230,14 +228,17 @@ func match_vertical(piece):
 	if !piece:
 		return
 	matched_pieces_vertical_append(piece)
+	var grid_positions = PoolVector2Array([])	# array with matched positions to emit in signal
 	var grid_position = fix_wrapped_position(pixel_to_grid(piece.position))
 	var y = grid_position.y - 1
 	var count = 1
+	grid_positions.append(Vector2(grid_position.x, grid_position.y))
 #	check up
 	while y >= 0:
 		var new_piece = all_pieces[grid_position.x][y]
 		if new_piece && piece.color == new_piece.color:
 			matched_pieces_vertical_append(new_piece)
+			grid_positions.append(Vector2(grid_position.x, y))
 			count += 1
 		else:
 			break
@@ -248,27 +249,30 @@ func match_vertical(piece):
 		var new_piece = all_pieces[grid_position.x][y]
 		if new_piece && piece.color == new_piece.color:
 			matched_pieces_vertical_append(new_piece)
+			grid_positions.append(Vector2(grid_position.x, y))
 			count += 1
 		else:
 			break
 		y += 1
-	emit_signal("matched", grid_position, piece.color, count)
+	emit_signal("matched", grid_positions, piece.color, count)
 
 
 func match_horizontal(piece):
 	if !piece:
 		return
-	piece.mark_matched()
 	matched_pieces_horizontal_append(piece)
+	var grid_positions = PoolVector2Array([])	# array with matched positions to emit in signal
 	var grid_position = fix_wrapped_position(pixel_to_grid(piece.position))
 	var x = grid_position.x - 1
 	var count = 1
+	grid_positions.append(Vector2(grid_position.x, grid_position.y))
 #	check left
 	while x >= 0:
 		var new_piece = all_pieces[x][grid_position.y]
 		if new_piece && piece.color == new_piece.color:
 			new_piece.mark_matched()
 			matched_pieces_horizontal_append(new_piece)
+			grid_positions.append(Vector2(x, grid_position.y))
 			count += 1
 		else:
 			break
@@ -280,11 +284,12 @@ func match_horizontal(piece):
 		if new_piece && piece.color == new_piece.color:
 			new_piece.mark_matched()
 			matched_pieces_horizontal_append(new_piece)
+			grid_positions.append(Vector2(x, grid_position.y))
 			count += 1
 		else:
 			break
 		x += 1
-	emit_signal("matched", grid_position, piece.color, count)
+	emit_signal("matched", grid_positions, piece.color, count)
 
 
 func matched_pieces_horizontal_append(piece):
