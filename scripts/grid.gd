@@ -20,9 +20,12 @@ var possible_pieces = [
 	preload("res://scenes/pieces/pink_piece.tscn"),
 ]
 
-# piece array
+# piece arrays
 var all_pieces
-var matched_pieces = []
+#var matched_pieces = []
+var matched_pieces_vertical = []
+var matched_pieces_horizontal = []
+var disabled_positions: PoolVector2Array = []
 
 # count of how many of each piece there is, { color : count }
 var piece_count_dict =  {}
@@ -36,6 +39,8 @@ var locked = false
 var movement_start_grid_position
 var old_movement_direction
 
+# signals
+signal matched(grid_position, color, count)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -62,7 +67,7 @@ func _input(event):
 		elif abs(old_movement_direction.y) == 0 &&  abs(new_direction.y) != 0:
 			reset_row_pixel_position(movement_start_grid_position.y)
 		
-		move_pieces(movement_start_grid_position, new_direction)
+		move_pieces(new_direction)
 		old_movement_direction = new_direction
 		highlight_matches()
 
@@ -196,16 +201,16 @@ func find_matches():
 					var left_piece = all_pieces[x-1][y]
 					var right_piece = all_pieces[x+1][y]
 					if left_piece && right_piece:
-						if left_piece.color == current_color && right_piece.color == current_color:
-							mark_as_matched([left_piece, piece, right_piece])
+						if left_piece.color == current_color && right_piece.color == current_color && !is_matched_horizontal(piece):
+							match_horizontal(piece)
 							match_found = true
 #				check vertical match
 				if y > 0 && y < height - 1:
 					var up_piece = all_pieces[x][y-1]
 					var down_piece = all_pieces[x][y+1]
 					if up_piece && down_piece:
-						if up_piece.color == current_color && down_piece.color == current_color:
-							mark_as_matched([up_piece, piece, down_piece])
+						if up_piece.color == current_color && down_piece.color == current_color && !is_matched_vertical(piece):
+							match_vertical(piece)
 							match_found = true
 	locked = match_found
 	if match_found:
@@ -213,11 +218,94 @@ func find_matches():
 	return match_found
 
 
-func mark_as_matched(array: Array):
-	for piece in array:
+func is_matched_vertical(piece):
+	return piece in matched_pieces_vertical
+
+
+func is_matched_horizontal(piece):
+	return piece in matched_pieces_horizontal
+
+
+func match_vertical(piece):
+	if !piece:
+		return
+	matched_pieces_vertical_append(piece)
+	var grid_position = fix_wrapped_position(pixel_to_grid(piece.position))
+	var y = grid_position.y - 1
+	var count = 1
+#	check up
+	while y >= 0:
+		var new_piece = all_pieces[grid_position.x][y]
+		if new_piece && piece.color == new_piece.color:
+			matched_pieces_vertical_append(new_piece)
+			count += 1
+		else:
+			break
+		y -= 1
+#	check down
+	y = grid_position.y + 1
+	while y < height:
+		var new_piece = all_pieces[grid_position.x][y]
+		if new_piece && piece.color == new_piece.color:
+			matched_pieces_vertical_append(new_piece)
+			count += 1
+		else:
+			break
+		y += 1
+	emit_signal("matched", grid_position, piece.color, count)
+
+
+func match_horizontal(piece):
+	if !piece:
+		return
+	piece.mark_matched()
+	matched_pieces_horizontal_append(piece)
+	var grid_position = fix_wrapped_position(pixel_to_grid(piece.position))
+	var x = grid_position.x - 1
+	var count = 1
+#	check left
+	while x >= 0:
+		var new_piece = all_pieces[x][grid_position.y]
+		if new_piece && piece.color == new_piece.color:
+			new_piece.mark_matched()
+			matched_pieces_horizontal_append(new_piece)
+			count += 1
+		else:
+			break
+		x -= 1
+#	check right
+	x = grid_position.x + 1
+	while x < width:
+		var new_piece = all_pieces[x][grid_position.y]
+		if new_piece && piece.color == new_piece.color:
+			new_piece.mark_matched()
+			matched_pieces_horizontal_append(new_piece)
+			count += 1
+		else:
+			break
+		x += 1
+	emit_signal("matched", grid_position, piece.color, count)
+
+
+func matched_pieces_horizontal_append(piece):
+	if !(piece in matched_pieces_horizontal):
+		matched_pieces_horizontal.append(piece)
 		piece.mark_matched()
-		if !matched_pieces.has(piece):
-			matched_pieces.append(piece)
+
+
+func matched_pieces_vertical_append(piece):
+	if !(piece in matched_pieces_vertical):
+		matched_pieces_vertical.append(piece)
+		piece.mark_matched()
+
+
+func get_matched_pieces() -> Array:
+	return matched_pieces_horizontal + matched_pieces_vertical
+
+
+func clear_matched_pieces_array():
+	matched_pieces_horizontal.clear()
+	matched_pieces_vertical.clear()
 
 
 # método para match em "blob"
@@ -260,6 +348,7 @@ func is_in_grid(grid_position):
 
 
 func touch_input():
+#	left click down
 	if Input.is_action_just_pressed("ui_touch"):
 		touch_down = get_global_mouse_position()
 		var touch_down_grid_position = pixel_to_grid(touch_down)
@@ -267,6 +356,7 @@ func touch_input():
 			controlling = true
 			movement_start_grid_position = touch_down_grid_position
 		
+#	left click up
 	if Input.is_action_just_released("ui_touch") && controlling:
 		controlling = false
 		var grid_backup = all_pieces.duplicate(true)
@@ -276,16 +366,22 @@ func touch_input():
 			all_pieces = grid_backup
 		reset_pieces_pixel_position()
 		highlight_matches()
+		
+#	right click down
+#	if Input.is_action_just_pressed("ui_touch_2"):
+#		var touch_down_grid_position = pixel_to_grid(get_global_mouse_position())
+#		if is_in_grid(touch_down_grid_position):
+#			pass
 
 
-func move_pieces(position, direction):
+func move_pieces(direction):
 	direction = zero_smallest_dimention(direction)
 	if abs(direction.x) > 0:
 		for column in all_pieces:
-			if column[position.y]:
-				column[position.y].move_as_group(direction)
+			if column[movement_start_grid_position.y]:
+				column[movement_start_grid_position.y].move_as_group(direction)
 	elif abs(direction.y) > 0:
-		for row in all_pieces[position.x]:
+		for row in all_pieces[movement_start_grid_position.x]:
 			if row:
 				row.move_as_group(direction)
 
@@ -332,7 +428,7 @@ func reset_column_pixel_position(column_id):
 		if piece:
 			piece.stop_movement()
 			piece.position = grid_to_pixel(Vector2(column_id, row_id))
-			row_id += 1
+		row_id += 1
 
 
 func reset_row_pixel_position(row_id):
@@ -342,7 +438,7 @@ func reset_row_pixel_position(row_id):
 		if piece:
 			piece.stop_movement()
 			piece.position = grid_to_pixel(Vector2(column_id, row_id))
-			column_id += 1
+		column_id += 1
 
 
 func zero_smallest_dimention(position):
@@ -372,14 +468,14 @@ func clamp_movement_distance(distance):
 func destroy_matched():
 #	wait before starting
 	yield(get_tree().create_timer(destroy_timer), "timeout")
-	for piece in matched_pieces:
+	for piece in get_matched_pieces():
 #		decrement count
 		piece_count_dict[piece.color] -= 1
 #		destroy piece
 		piece.queue_free()
 		var piece_position = pixel_to_grid(piece.position)
 		all_pieces[piece_position.x][piece_position.y] = null
-	matched_pieces.clear()
+	clear_matched_pieces_array()
 	collapse_columns()
 
 
