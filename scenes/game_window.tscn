@@ -116,3 +116,4 @@ height = 320
 grid_width = 8
 [connection signal="matched" from="grid_player1" to="." method="_on_grid_player1_matched"]
 [connection signal="matched" from="grid_player2" to="." method="_on_grid_player2_matched"]
+[connection signal="unit_collision" from="arena" to="." method="_on_arena_unit_collision"]

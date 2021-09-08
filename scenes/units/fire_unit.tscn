@@ -3,8 +3,10 @@
 [ext_resource path="res://scenes/unit.tscn" type="PackedScene" id=1]
 [ext_resource path="res://art/placeholders/robot.png" type="Texture" id=2]
 
-[node name="unit" instance=ExtResource( 1 )]
+[node name="fire_unit" instance=ExtResource( 1 )]
 color = "fire"
+strong_vs = [ "earth" ]
+weak_vs = [ "water" ]
 
 [node name="Sprite" parent="." index="0"]
 modulate = Color( 1, 0, 0, 1 )
