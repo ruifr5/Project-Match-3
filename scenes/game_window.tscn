@@ -1,18 +1,32 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://scripts/grid.gd" type="Script" id=1]
+[ext_resource path="res://art/placeholders/temp_grid_background.png" type="Texture" id=2]
 [ext_resource path="res://scripts/fps.gd" type="Script" id=3]
 [ext_resource path="res://scripts/cover.gd" type="Script" id=4]
+[ext_resource path="res://art/placeholders/background3d.png" type="Texture" id=5]
+[ext_resource path="res://scripts/game_manager.gd" type="Script" id=6]
+[ext_resource path="res://scenes/arena.tscn" type="PackedScene" id=8]
 
 [node name="game_window" type="Node2D"]
+script = ExtResource( 6 )
 
 [node name="background" type="TextureRect" parent="."]
 margin_left = 1.05945
 margin_right = 577.059
 margin_bottom = 1024.0
 __meta__ = {
+"_edit_group_": true,
 "_edit_use_anchors_": false
 }
+
+[node name="temp_grid_background" type="Sprite" parent="background"]
+position = Vector2( 288, 192 )
+texture = ExtResource( 2 )
+
+[node name="temp_grid_background2" type="Sprite" parent="background"]
+position = Vector2( 288, 832 )
+texture = ExtResource( 5 )
 
 [node name="grid_player1" type="Node2D" parent="."]
 script = ExtResource( 1 )
@@ -94,3 +108,11 @@ script = ExtResource( 3 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="arena" parent="." instance=ExtResource( 8 )]
+position = Vector2( 32, 352 )
+width = 512
+height = 320
+grid_width = 8
+[connection signal="matched" from="grid_player1" to="." method="_on_grid_player1_matched"]
+[connection signal="matched" from="grid_player2" to="." method="_on_grid_player2_matched"]
