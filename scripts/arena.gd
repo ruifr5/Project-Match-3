@@ -17,9 +17,8 @@ var possible_units = {
 }
 
 # normal -> normal movement
-# safe_distance -> moving away from allies
 # correction -> moving into play area
-enum MoveType { NORMAL, SAFE_DISTANCE, CORRECTION}
+enum MoveType { NORMAL, CORRECTION}
 
 signal unit_collision(unit1, unit2)
 
@@ -105,14 +104,24 @@ func move_unit(unit: KinematicBody2D, target: Vector2, move_type = MoveType.NORM
 		remove_unit(unit)
 		unit.die()
 	else:
-		var collision = unit.move_and_collide(direction.normalized() * speed)
+		var collision = unit.move_and_collide(calc_avoid_vector(unit) + direction.normalized() * speed)
 		if collision && unit.allegiance != collision.collider.allegiance:
 			emit_signal("unit_collision", unit, collision.collider)
-		elif collision && move_type != MoveType.SAFE_DISTANCE:
-			safe_distance(unit, collision.collider)
-#	else:
-#		remove_unit(unit)
-#		unit.die()
+
+
+func calc_avoid_vector(unit):
+	var count = 0
+	var to_return = Vector2()
+	for entry in moving_units:
+		if unit.allegiance == entry[0].allegiance && unit != entry[0] && unit.position.distance_to(entry[0].position) < unit_half_size * 1.5:
+			var aaaa = unit.position - entry[0].position
+			to_return += aaaa
+			count += 1
+	if count > 0:
+		to_return /= count
+		to_return = to_return.normalized()
+		return to_return
+	return Vector2(0,0)
 
 
 func move_all_units():
@@ -121,8 +130,3 @@ func move_all_units():
 		var target = calc_target(unit, unit.allegiance)
 		var move_type = MoveType.CORRECTION if target.y == unit.position.y else MoveType.NORMAL
 		move_unit(unit, target, move_type)
-
-
-func safe_distance(unit1, unit2):
-	move_unit(unit1, clamp_vector(unit1.position - unit2.position)*2, MoveType.SAFE_DISTANCE)
-	move_unit(unit2, clamp_vector(unit2.position - unit1.position)*2, MoveType.SAFE_DISTANCE)
