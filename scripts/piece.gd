@@ -51,7 +51,7 @@ func check_if_highlighted():
 	if matched:
 		return
 	elif highlighted:
-		$SpriteScreenWrap.modulate = Color(1.2, 1.2, 1.2, 1.25)
+		$SpriteScreenWrap.modulate = Color(2, 2, 2, 1)
 	else:
 		$SpriteScreenWrap.modulate = Color(1, 1, 1, 1)
 

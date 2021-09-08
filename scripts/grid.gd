@@ -37,6 +37,8 @@ var locked = false
 var movement_start_grid_position
 var old_movement_direction
 
+enum MovementType {INSTANT, ANIMATED}
+
 # signals
 signal matched(grid_positions, color, count)
 
@@ -45,13 +47,12 @@ func _ready():
 	randomize()
 	init_piece_count_array()
 	all_pieces = make_2d_array()
-	spawn_pieces()
+	spawn_pieces(MovementType.INSTANT)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta):
-	if !locked:
-		touch_input()
+#func _process(_delta):
+#	pass
 
 
 func _input(event):
@@ -68,6 +69,36 @@ func _input(event):
 		move_pieces(new_direction)
 		old_movement_direction = new_direction
 		highlight_matches()
+	
+	if !locked:
+		touch_input()
+
+
+func touch_input():
+#	left click down
+	if Input.is_action_just_pressed("ui_touch"):
+		touch_down = get_global_mouse_position()
+		var touch_down_grid_position = pixel_to_grid(touch_down)
+		if is_in_grid(touch_down_grid_position):
+			controlling = true
+			movement_start_grid_position = touch_down_grid_position
+		
+#	left click up
+	if Input.is_action_just_released("ui_touch") && controlling:
+		controlling = false
+		var grid_backup = all_pieces.duplicate(true)
+		all_pieces = get_array_pixel_position_converted_to_grid_position()
+#		reset positions if there was no match
+		if !find_matches():
+			all_pieces = grid_backup
+		reset_pieces_pixel_position()
+		highlight_matches()
+		
+#	right click down
+#	if Input.is_action_just_pressed("ui_touch_2"):
+#		var touch_down_grid_position = pixel_to_grid(get_global_mouse_position())
+#		if is_in_grid(touch_down_grid_position):
+#			pass
 
 
 func init_piece_count_array():
@@ -132,7 +163,7 @@ func get_lowest_count_piece_idx():
 	return to_return
 
 
-func spawn_pieces():
+func spawn_pieces(move_type = MovementType.ANIMATED):
 	for x in width:
 		var empty_slots_above = 0
 		var spawn_offset = 0
@@ -150,8 +181,6 @@ func spawn_pieces():
 					piece = possible_pieces[new_piece_id].instance()
 					new_piece_id = 0 if new_piece_id + 1 >= possible_pieces.size() else new_piece_id + 1
 					count += 1
-	#			set wrap area information
-				piece.get_node("SpriteScreenWrap").wrapArea = wrap_area
 #				count empty slots above to determine the spawn offset for each piece
 				if empty_slots_above == 0 && y < height - 1:
 					for k in range(y + 1, height):
@@ -165,13 +194,19 @@ func spawn_pieces():
 #				increment spawn offset
 				if spawn_offset < empty_slots_above:
 					spawn_offset += 1
-#				disable vertical wrap arround to remove noise from animation
-				(piece as Node2D).get_node("SpriteScreenWrap").setVerticalWrap(false)
-#				animate movement
-				piece.move(grid_to_pixel(Vector2(x,y)), collapse_seconds, Tween.TRANS_EXPO, Tween.EASE_IN_OUT)
-#				re-enable vertical wrap arround after movement ends
-				thread.start(piece.get_node("SpriteScreenWrap"), "enableVerticalWrapAfterDelay", collapse_seconds)
-				thread.wait_to_finish()
+				var sprite_screen_wrap = piece.get_node("SpriteScreenWrap")
+	#			set wrap area information
+				sprite_screen_wrap.wrapArea = wrap_area
+				if move_type == MovementType.INSTANT:
+					piece.position = grid_to_pixel(Vector2(x,y))
+				else:
+	#				disable vertical wrap arround to remove noise from animation
+					sprite_screen_wrap.setVerticalWrap(false)
+	#				animate movement
+					piece.move(grid_to_pixel(Vector2(x,y)), collapse_seconds, Tween.TRANS_EXPO, Tween.EASE_IN_OUT)
+	#				re-enable vertical wrap arround after movement ends
+					thread.start(sprite_screen_wrap, "enableVerticalWrapAfterDelay", collapse_seconds)
+					thread.wait_to_finish()
 	
 
 func match_at(x, y, color):
@@ -350,33 +385,6 @@ func is_in_grid(grid_position):
 		if grid_position.y >= 0 && grid_position.y < height:
 			return true;
 	return false
-
-
-func touch_input():
-#	left click down
-	if Input.is_action_just_pressed("ui_touch"):
-		touch_down = get_global_mouse_position()
-		var touch_down_grid_position = pixel_to_grid(touch_down)
-		if is_in_grid(touch_down_grid_position):
-			controlling = true
-			movement_start_grid_position = touch_down_grid_position
-		
-#	left click up
-	if Input.is_action_just_released("ui_touch") && controlling:
-		controlling = false
-		var grid_backup = all_pieces.duplicate(true)
-		all_pieces = get_array_pixel_position_converted_to_grid_position()
-#		reset positions if there was no match
-		if !find_matches():
-			all_pieces = grid_backup
-		reset_pieces_pixel_position()
-		highlight_matches()
-		
-#	right click down
-#	if Input.is_action_just_pressed("ui_touch_2"):
-#		var touch_down_grid_position = pixel_to_grid(get_global_mouse_position())
-#		if is_in_grid(touch_down_grid_position):
-#			pass
 
 
 func move_pieces(direction):
