@@ -10,5 +10,4 @@ weak_vs = [ "fire" ]
 
 [node name="Sprite" parent="." index="0"]
 modulate = Color( 0, 1, 0, 1 )
-position = Vector2( 0.261, -7.156 )
 texture = ExtResource( 2 )
