@@ -58,12 +58,12 @@ func move_and_fight(dir: Vector2, speed: float):
 		var fight_result = wins_vs(closest_enemy)
 		var new_dir = (closest_enemy.position - position).normalized()
 #			when chasing
-		if fight_result == Result.WIN:
+		if fight_result == Result.WIN or fight_result == Result.TIE:
 			state = State.CHASING
 			dir = new_dir
 			speed *= chase_speed_multiplier
 #			when fleeing
-		elif fight_result == Result.LOSE or fight_result == Result.TIE:
+		elif fight_result == Result.LOSE:
 			state = State.FLEEING
 			dir.x = dir.x + new_dir.x * -1
 			speed *= flee_speed_multiplier
