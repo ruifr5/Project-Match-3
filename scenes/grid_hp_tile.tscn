@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://art/tiles/background_light.png" type="Texture" id=1]
+[ext_resource path="res://scripts/grid_hp_tile.gd" type="Script" id=2]
+
+[node name="grid_hp_tile" type="Node2D"]
+script = ExtResource( 2 )
+
+[node name="Sprite" type="Sprite" parent="."]
+texture = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="hp_label" type="Label" parent="."]
+margin_left = 18.8866
+margin_top = -26.9405
+margin_right = 27.8866
+margin_bottom = -12.9405
+rect_scale = Vector2( 1.2, 1.2 )
+text = "3"
+__meta__ = {
+"_edit_use_anchors_": false
+}

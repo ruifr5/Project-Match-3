@@ -1,5 +1,5 @@
-extends Node2D
 class_name Piece
+extends Node2D
 
 export var color: String;
 

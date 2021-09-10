@@ -1,5 +1,5 @@
-extends KinematicBody2D
 class_name Unit
+extends KinematicBody2D
 
 export (String) var color
 export (Array, String) var strong_vs

@@ -14,19 +14,21 @@ var unit_half_size
 onready var spawn_queues = { Vector2.UP: make_2d_array(grid_width), Vector2.DOWN: make_2d_array(grid_width) }
 var spawn_areas_block = { Vector2.UP: [], Vector2.DOWN: [] }
 
-var possible_units = {
-	fire = preload("res://scenes/units/fire_unit.tscn"),
-	water = preload("res://scenes/units/water_unit.tscn"),
-	earth = preload("res://scenes/units/earth_unit.tscn"),
-}
+# ****IMPORTANT**** must be set
+# dictionary { unit_type = preload(...), ...}
+var possible_units
 
 # normal -> normal movement
 # correction -> moving into play area
 enum MoveType { NORMAL, CORRECTION}
 
+signal end_reached(position_x, allegiance)
 
 # Called when the node enters the scene tree for the first time.
-func _ready():
+func _ready():	
+	if !possible_units:
+		queue_free()
+		return
 	init_unit_half_size()
 	init_spawn_areas()
 
@@ -162,6 +164,7 @@ func move_unit(unit: KinematicBody2D, target: Vector2, move_type = MoveType.NORM
 	var speed = unit_speed * 10 if move_type == MoveType.CORRECTION else unit_speed
 	if unit.position.y < unit_half_size && direction.normalized() == Vector2.UP || unit.position.y > height - unit_half_size && direction.normalized() == Vector2.DOWN:
 #		reach enemy base
+		emit_signal("end_reached", unit.position.x, unit.allegiance)
 		remove_from_moving_units(unit)
 		unit.die()
 	else:

@@ -1,3 +1,4 @@
+class_name MyGrid
 extends Node2D
 
 export (int) var width
@@ -12,13 +13,9 @@ export (float) var refill_timer = 0
 export (float) var collapse_seconds = 0.5
 
 
-var possible_pieces = [
-	preload("res://scenes/pieces/water_piece.tscn"),
-	preload("res://scenes/pieces/earth_piece.tscn"),
-	preload("res://scenes/pieces/fire_piece.tscn"),
-#	preload("res://scenes/pieces/yellow_piece.tscn"),
-#	preload("res://scenes/pieces/pink_piece.tscn"),
-]
+# ****IMPORTANT**** must be set
+# array [ preload(...), ...]
+var possible_pieces
 
 # piece arrays
 var all_pieces
@@ -43,8 +40,10 @@ enum MovementType {INSTANT, ANIMATED}
 signal matched(grid_positions, color)
 
 # Called when the node enters the scene tree for the first time.
-func _ready():
-	randomize()
+func _enter_tree():
+	if !possible_pieces:
+		queue_free()
+		return
 	init_piece_count_array()
 	all_pieces = make_2d_array()
 	spawn_pieces(MovementType.INSTANT)

@@ -1,11 +1,10 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://scripts/grid.gd" type="Script" id=1]
-[ext_resource path="res://art/placeholders/temp_grid_background.png" type="Texture" id=2]
 [ext_resource path="res://scripts/fps.gd" type="Script" id=3]
 [ext_resource path="res://scripts/cover.gd" type="Script" id=4]
-[ext_resource path="res://art/placeholders/background3d.png" type="Texture" id=5]
 [ext_resource path="res://scripts/game_manager.gd" type="Script" id=6]
+[ext_resource path="res://scenes/grid_hp.tscn" type="PackedScene" id=7]
 [ext_resource path="res://scenes/arena.tscn" type="PackedScene" id=8]
 
 [node name="game_window" type="Node2D"]
@@ -22,14 +21,6 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="temp_grid_background" type="Sprite" parent="background"]
-position = Vector2( 288, 192 )
-texture = ExtResource( 2 )
-
-[node name="temp_grid_background2" type="Sprite" parent="background"]
-position = Vector2( 288, 832 )
-texture = ExtResource( 5 )
-
 [node name="grid_player1" type="Node2D" parent="."]
 script = ExtResource( 1 )
 width = 8
@@ -39,6 +30,8 @@ y_start = 960
 offset = 64
 wrap_area = Rect2( 32, 672, 512, 320 )
 
+[node name="grid_hp" parent="grid_player1" instance=ExtResource( 7 )]
+
 [node name="grid_player2" type="Node2D" parent="."]
 script = ExtResource( 1 )
 width = 8
@@ -47,6 +40,8 @@ x_start = 64
 y_start = 320
 offset = 64
 wrap_area = Rect2( 32, 32, 512, 320 )
+
+[node name="grid_hp" parent="grid_player2" instance=ExtResource( 7 )]
 
 [node name="cover" type="Node2D" parent="."]
 script = ExtResource( 4 )
