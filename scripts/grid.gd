@@ -40,7 +40,7 @@ var old_movement_direction
 enum MovementType {INSTANT, ANIMATED}
 
 # signals
-signal matched(grid_positions, color, count)
+signal matched(grid_positions, color)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -266,7 +266,6 @@ func match_vertical(piece):
 	var grid_positions = PoolVector2Array([])	# array with matched positions to emit in signal
 	var grid_position = fix_wrapped_position(pixel_to_grid(piece.position))
 	var y = grid_position.y - 1
-	var count = 1
 	grid_positions.append(Vector2(grid_position.x, grid_position.y))
 #	check up
 	while y >= 0:
@@ -274,7 +273,6 @@ func match_vertical(piece):
 		if new_piece && piece.color == new_piece.color:
 			matched_pieces_vertical_append(new_piece)
 			grid_positions.append(Vector2(grid_position.x, y))
-			count += 1
 		else:
 			break
 		y -= 1
@@ -285,11 +283,10 @@ func match_vertical(piece):
 		if new_piece && piece.color == new_piece.color:
 			matched_pieces_vertical_append(new_piece)
 			grid_positions.append(Vector2(grid_position.x, y))
-			count += 1
 		else:
 			break
 		y += 1
-	emit_signal("matched", grid_positions, piece.color, count)
+	emit_signal("matched", grid_positions, piece.color)
 
 
 func match_horizontal(piece):
@@ -299,7 +296,6 @@ func match_horizontal(piece):
 	var grid_positions = PoolVector2Array([])	# array with matched positions to emit in signal
 	var grid_position = fix_wrapped_position(pixel_to_grid(piece.position))
 	var x = grid_position.x - 1
-	var count = 1
 	grid_positions.append(Vector2(grid_position.x, grid_position.y))
 #	check left
 	while x >= 0:
@@ -308,7 +304,6 @@ func match_horizontal(piece):
 			new_piece.mark_matched()
 			matched_pieces_horizontal_append(new_piece)
 			grid_positions.append(Vector2(x, grid_position.y))
-			count += 1
 		else:
 			break
 		x -= 1
@@ -320,11 +315,10 @@ func match_horizontal(piece):
 			new_piece.mark_matched()
 			matched_pieces_horizontal_append(new_piece)
 			grid_positions.append(Vector2(x, grid_position.y))
-			count += 1
 		else:
 			break
 		x += 1
-	emit_signal("matched", grid_positions, piece.color, count)
+	emit_signal("matched", grid_positions, piece.color)
 
 
 func matched_pieces_horizontal_append(piece):

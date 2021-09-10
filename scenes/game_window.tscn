@@ -12,7 +12,6 @@
 script = ExtResource( 6 )
 
 [node name="background" type="Node2D" parent="."]
-z_index = 1
 
 [node name="background" type="TextureRect" parent="background"]
 margin_left = 1.05945
@@ -32,7 +31,6 @@ position = Vector2( 288, 832 )
 texture = ExtResource( 5 )
 
 [node name="grid_player1" type="Node2D" parent="."]
-z_index = 1
 script = ExtResource( 1 )
 width = 8
 height = 5
@@ -42,7 +40,6 @@ offset = 64
 wrap_area = Rect2( 32, 672, 512, 320 )
 
 [node name="grid_player2" type="Node2D" parent="."]
-z_index = 1
 script = ExtResource( 1 )
 width = 8
 height = 5
@@ -121,4 +118,3 @@ height = 320
 grid_width = 8
 [connection signal="matched" from="grid_player1" to="." method="_on_grid_player1_matched"]
 [connection signal="matched" from="grid_player2" to="." method="_on_grid_player2_matched"]
-[connection signal="unit_collision" from="arena" to="." method="_on_arena_unit_collision"]

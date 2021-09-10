@@ -50,7 +50,7 @@ func _ready():
 # position variable or set_position function, but currently, Godot Engine
 # does not allow it. So, instead of only wrapping when the Sprite is moved,
 # we are forced to check EVERY frame; which requires more calculations!
-func _process(delta):
+func _process(_delta):
 	# Only wrap if an area is defined otherwise stop all processing
 	if wrapArea != null:
 		wrapHorizontally()

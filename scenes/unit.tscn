@@ -1,16 +1,32 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://scripts/unit.gd" type="Script" id=1]
+[ext_resource path="res://art/placeholders/robot.png" type="Texture" id=2]
 
 [sub_resource type="CapsuleShape2D" id=1]
-radius = 18.2927
+radius = 18.012
 height = 12.2527
+
+[sub_resource type="CircleShape2D" id=2]
+radius = 59.6272
 
 [node name="unit" type="KinematicBody2D"]
 script = ExtResource( 1 )
+chase_speed_multiplier = 1.2
 
 [node name="Sprite" type="Sprite" parent="."]
-position = Vector2( 0.261, -7.156 )
+modulate = Color( 0, 0, 0, 1 )
+position = Vector2( 0.261, -6.156 )
+texture = ExtResource( 2 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource( 1 )
+
+[node name="aggro_area" type="Area2D" parent="."]
+visible = false
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="aggro_area"]
+shape = SubResource( 2 )
+[connection signal="body_entered" from="aggro_area" to="." method="_on_aggro_radius_body_entered"]
+[connection signal="body_exited" from="aggro_area" to="." method="_on_aggro_radius_body_exited"]
