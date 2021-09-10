@@ -1,1 +1,9 @@
-resolver "jiggle" no centro quando o drag muda de eixo
+fire unit sprite com animaçoes
+efeitos secundarios dos tiles
+	fire - dot num tile
+	water - freeze tile
+	earth - inutilizar um tile
+2 novos tiles
+	dark?
+	???
+sistema de HP

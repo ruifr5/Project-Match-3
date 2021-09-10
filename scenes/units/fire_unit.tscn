@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://scenes/unit.tscn" type="PackedScene" id=1]
+[ext_resource path="res://art/units/water_unit_animation.png" type="Texture" id=2]
 
 [node name="fire_unit" instance=ExtResource( 1 )]
 color = "fire"
@@ -9,3 +10,4 @@ weak_vs = [ "water" ]
 
 [node name="Sprite" parent="." index="0"]
 modulate = Color( 1, 0, 0, 1 )
+texture = ExtResource( 2 )

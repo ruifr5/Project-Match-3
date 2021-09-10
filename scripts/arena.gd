@@ -3,7 +3,7 @@ extends Node2D
 export (int) var width
 export (int) var height
 export (int) var grid_width
-export (float) var unit_speed = 0.7
+export (float) var unit_speed = 1
 onready var offset = width / grid_width
 
 # unit variables
@@ -40,7 +40,7 @@ func _physics_process(_delta):
 
 func init_unit_half_size():
 	var unit = possible_units[possible_units.keys()[0]].instance()
-	unit_half_size = unit.get_node("Sprite").get_texture().get_size().x / 2
+	unit_half_size = unit.pixel_size / 2
 	unit.queue_free()
 
 
@@ -52,7 +52,7 @@ func init_spawn_areas():
 		add_child(area)
 		area.add_child(collision_shape)
 		collision_shape.shape = CircleShape2D.new()
-		collision_shape.shape.radius = unit_half_size - 12 # todo: remove magic number when textures are right
+		collision_shape.shape.radius = unit_half_size / 2
 #		top positions
 		area.position.x = offset / 2 + x * offset
 		area.position.y = unit_half_size
@@ -103,7 +103,8 @@ func touch_input():
 #		debug
 		for x in 1:
 			yield(get_tree().create_timer(0.1), "timeout")
-			spawn_unit_debug(get_local_mouse_position(), Vector2.DOWN, ["fire","fire","fire"][floor(rand_range(0,3))])
+#			spawn_unit_debug(get_local_mouse_position(), Vector2.DOWN, ["fire","fire","fire"][floor(rand_range(0,3))])
+			queue_spawn_unit(0, Vector2.DOWN, ["fire","water","earth"][floor(rand_range(0,3))])
 
 
 func spawn_unit(grid_position_x, run_direction, color):
@@ -153,7 +154,7 @@ func calc_target(unit, direction: Vector2):
 
 func calc_unit_spawn_position(grid_position_x, run_direction) -> Vector2:
 	var y = height - unit_half_size if run_direction == Vector2.UP else unit_half_size 
-	return Vector2(grid_position_x * offset + unit_half_size, y)
+	return Vector2(offset / 2 + grid_position_x * offset, y)
 
 
 func move_unit(unit: KinematicBody2D, target: Vector2, move_type = MoveType.NORMAL):

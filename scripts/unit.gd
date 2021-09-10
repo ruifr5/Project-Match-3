@@ -4,9 +4,10 @@ class_name Unit
 export (String) var color
 export (Array, String) var strong_vs
 export (Array, String) var weak_vs
-export (float) var aggro_radius = 64 + 32 # unit size + half unit size
+export (int) var pixel_size = 64 * scale.x
+export (float) var aggro_radius = pixel_size + pixel_size / 2
 export (float) var flee_speed_multiplier = 1
-export (float) var chase_speed_multiplier = 1
+export (float) var chase_speed_multiplier = 1.2
 
 var state
 var allegiance: Vector2 # aka what direction am I walking in (up or down)
@@ -19,14 +20,26 @@ enum Result {WIN, LOSE, TIE}
 
 func _ready():
 	$aggro_area/CollisionShape2D.shape.radius = aggro_radius
+	play_walk_animation()
 
 
 func _process(_delta):
+	process_enemies()
+
+
+func process_enemies():
 	if enemies_near.size():
 		enemies_near.sort_custom(self, "sort_closest")
 		closest_enemy = enemies_near[0]
 	else:
 		closest_enemy = null
+
+
+func play_walk_animation():
+	if allegiance == Vector2.UP:
+		$AnimationPlayer.play("walk_up")
+	elif allegiance == Vector2.DOWN:
+		$AnimationPlayer.play("walk_down")
 
 
 func sort_closest(a, b):

@@ -1,25 +1,60 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://scripts/unit.gd" type="Script" id=1]
-[ext_resource path="res://art/placeholders/robot.png" type="Texture" id=2]
+[ext_resource path="res://art/units/earth_unit_animation.png" type="Texture" id=2]
 
 [sub_resource type="CapsuleShape2D" id=1]
-radius = 18.012
-height = 12.2527
+radius = 23.4045
+height = 5.62428
 
 [sub_resource type="CircleShape2D" id=2]
 radius = 59.6272
 
+[sub_resource type="Animation" id=3]
+resource_name = "walk_down"
+length = 0.8
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("Sprite:frame")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.2, 0.4, 0.6 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 0, 1, 2, 1 ]
+}
+
+[sub_resource type="Animation" id=4]
+resource_name = "walk_up"
+length = 0.8
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("Sprite:frame")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.2, 0.4, 0.6 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 3, 4, 5, 4 ]
+}
+
 [node name="unit" type="KinematicBody2D"]
+scale = Vector2( 0.8, 0.8 )
 script = ExtResource( 1 )
-chase_speed_multiplier = 1.2
 
 [node name="Sprite" type="Sprite" parent="."]
-modulate = Color( 0, 0, 0, 1 )
-position = Vector2( 0.261, -6.156 )
 texture = ExtResource( 2 )
+vframes = 2
+hframes = 3
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
 shape = SubResource( 1 )
 
 [node name="aggro_area" type="Area2D" parent="."]
@@ -28,5 +63,9 @@ monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="aggro_area"]
 shape = SubResource( 2 )
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+anims/walk_down = SubResource( 3 )
+anims/walk_up = SubResource( 4 )
 [connection signal="body_entered" from="aggro_area" to="." method="_on_aggro_radius_body_entered"]
 [connection signal="body_exited" from="aggro_area" to="." method="_on_aggro_radius_body_exited"]
