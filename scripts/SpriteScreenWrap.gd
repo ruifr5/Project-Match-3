@@ -128,6 +128,7 @@ func addMirror(axis, mirrorOffset):
 	mirrorSprite.texture = texture
 	mirrorSprite.position = Vector2(0, 0)
 	mirrorSprite.offset = mirrorOffset
+	mirrorSprite.flip_v = flip_v
 	add_child(mirrorSprite)
 #	mirrorSprite.modulate = Color.red
 

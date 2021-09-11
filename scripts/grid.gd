@@ -11,6 +11,7 @@ export (float) var destroy_timer = 0.3
 export (float) var collapse_timer = 0.1
 export (float) var refill_timer = 0
 export (float) var collapse_seconds = 0.5
+export (Vector2) var allegiance = Vector2.UP
 
 
 # ****IMPORTANT**** must be set
@@ -29,6 +30,7 @@ var piece_count_dict =  {}
 # touch variables
 var touch_down: Vector2
 var touch_up: Vector2
+var touch_idx
 var controlling = false
 var locked = false
 var movement_start_grid_position
@@ -55,8 +57,26 @@ func _enter_tree():
 
 
 func _input(event):
-	if event is InputEventMouseMotion && controlling:
-		var new_direction = clamp_movement_distance(zero_smallest_dimention(get_global_mouse_position() - touch_down))
+	on_drag(event)
+	
+	if !locked:
+		on_mouse_click()
+		on_touch(event)
+
+
+func should_mirror():
+	return allegiance == Vector2.DOWN
+
+
+func on_drag(event):
+	if (event is InputEventMouseMotion or event is InputEventScreenDrag) && controlling:
+		var drag_position
+		if event is InputEventMouseMotion:
+			drag_position = get_global_mouse_position()
+		elif event is InputEventScreenDrag and touch_idx == event.index:
+			drag_position = event.position
+		
+		var	new_direction = clamp_movement_distance(zero_smallest_dimention(drag_position - touch_down))
 
 		if !old_movement_direction:
 			old_movement_direction = new_direction
@@ -68,12 +88,33 @@ func _input(event):
 		move_pieces(new_direction)
 		old_movement_direction = new_direction
 		highlight_matches()
-	
-	if !locked:
-		touch_input()
 
 
-func touch_input():
+func on_touch(event):
+	if event is InputEventScreenTouch:
+#			touch down
+			if event.pressed:
+				var temp_touch_down = event.position
+				var touch_down_grid_position = pixel_to_grid(temp_touch_down)
+				if is_in_grid(touch_down_grid_position) && !touch_idx:
+					touch_down = temp_touch_down
+					touch_idx = event.index
+					controlling = true
+					movement_start_grid_position = touch_down_grid_position
+#			touch up
+			else:
+				touch_idx = null
+				controlling = false
+				var grid_backup = all_pieces.duplicate(true)
+				all_pieces = get_array_pixel_position_converted_to_grid_position()
+		#		reset positions if there was no match
+				if !find_matches():
+					all_pieces = grid_backup
+				reset_pieces_pixel_position()
+				highlight_matches()
+
+
+func on_mouse_click():
 #	left click down
 	if Input.is_action_just_pressed("ui_touch"):
 		touch_down = get_global_mouse_position()
@@ -180,29 +221,35 @@ func spawn_pieces(move_type = MovementType.ANIMATED):
 					piece = possible_pieces[new_piece_id].instance()
 					new_piece_id = 0 if new_piece_id + 1 >= possible_pieces.size() else new_piece_id + 1
 					count += 1
-#				count empty slots above to determine the spawn offset for each piece
-				if empty_slots_above == 0 && y < height - 1:
-					for k in range(y + 1, height):
-						if !all_pieces[x][k]:
-							empty_slots_above += 1
 	#			set position and save piece to array
-				piece.position = grid_to_pixel(Vector2(x, height + spawn_offset))
+				if should_mirror():
+	#				count empty slots above to determine the spawn offset for each piece
+					if empty_slots_above == 0 && y < height - 1:
+						for k in range(y, height):
+							if !all_pieces[x][k]:
+								empty_slots_above += 1
+							else:
+								break
+					piece.position = grid_to_pixel(Vector2(x, -empty_slots_above))
+					empty_slots_above -= 1
+				else:
+					piece.position = grid_to_pixel(Vector2(x, height + spawn_offset))
+				spawn_offset += 1
 				add_child(piece)
 				all_pieces[x][y] = piece
 				piece_count_dict[piece.color] += 1
-#				increment spawn offset
-				if spawn_offset < empty_slots_above:
-					spawn_offset += 1
 				var sprite_screen_wrap = piece.get_node("SpriteScreenWrap")
 	#			set wrap area information
 				sprite_screen_wrap.wrapArea = wrap_area
+				if should_mirror():
+					sprite_screen_wrap.flip_v = true
 				if move_type == MovementType.INSTANT:
 					piece.position = grid_to_pixel(Vector2(x,y))
 				else:
 	#				disable vertical wrap arround to remove noise from animation
 					sprite_screen_wrap.setVerticalWrap(false)
 	#				animate movement
-					piece.move(grid_to_pixel(Vector2(x,y)), collapse_seconds, Tween.TRANS_EXPO, Tween.EASE_IN_OUT)
+					piece.move(grid_to_pixel(Vector2(x,y)), collapse_seconds)#, Tween.TRANS_EXPO, Tween.EASE_IN_OUT)
 	#				re-enable vertical wrap arround after movement ends
 					thread.start(sprite_screen_wrap, "enableVerticalWrapAfterDelay", collapse_seconds)
 					thread.wait_to_finish()
@@ -489,15 +536,36 @@ func collapse_columns():
 #	wait before starting
 	yield(get_tree().create_timer(collapse_timer), "timeout")
 	for x in width:
+		if should_mirror():
+			x = -x-1
 		for y in height:
+			if should_mirror():
+				y = -y-1
 			if !all_pieces[x][y]:
-				for k in range(y + 1, height):
+				var rang
+				if should_mirror():
+					rang = range(-5, y)
+					rang.invert()
+				else:
+					rang = range(y + 1, height)
+				for k in rang:
 					if all_pieces[x][k]:
-						all_pieces[x][k].move(grid_to_pixel(Vector2(x, y)))
-						all_pieces[x][y] = all_pieces[x][k]
-						all_pieces[x][k] = null
+						var vec = Vector2(x, y)
+						var veck = Vector2(x, k)
+						if should_mirror():
+							vec = negative_grid_positions_to_positive(vec)
+							veck = negative_grid_positions_to_positive(veck)
+						all_pieces[vec.x][veck.y].move(grid_to_pixel(vec))
+						all_pieces[vec.x][vec.y] = all_pieces[vec.x][veck.y]
+						all_pieces[vec.x][veck.y] = null
 						break
 	refill_grid()
+
+
+func negative_grid_positions_to_positive(grid_position: Vector2) -> Vector2:
+	var x = width + grid_position.x if grid_position.x < 0 else grid_position.x
+	var y = height + grid_position.y if grid_position.y < 0 else grid_position.y
+	return Vector2(x, y)
 
 
 func refill_grid():

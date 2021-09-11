@@ -6,4 +6,3 @@ efeitos secundarios dos tiles
 2 novos tiles
 	dark?
 	???
-sistema de HP

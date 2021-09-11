@@ -9,10 +9,6 @@ var matched = false
 var highlighted = false
 
 
-# Called when the node enters the scene tree for the first time.
-#func _ready():
-#	pass
-
 func move_as_group(difference, duration = .5, trans_type = Tween.TRANS_EXPO, ease_type = Tween.EASE_OUT):
 	if !movement_start_position:
 		movement_start_position = position

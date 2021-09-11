@@ -20,7 +20,6 @@ var tiles = [
 
 func _ready():
 	init_tile_positions()
-	pass
 
 
 #func _input(event):
@@ -56,9 +55,10 @@ func init_tile_positions():
 func attack_col(position_x):
 	var grid_position_x = get_parent().pixel_to_grid(Vector2(offset / 2 + position_x, 0)).x
 	for y in height:
-		var tile = all_tiles[grid_position_x][height-1 - y]
+		var new_y = y if get_parent().should_mirror() else height-1 - y
+		var tile = all_tiles[grid_position_x][new_y]
 		if tile.hp > 0:
-			tile.damage(1)
+			tile.damage(3)
 			break
 
 

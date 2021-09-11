@@ -15,6 +15,8 @@ var possible_pieces = [
 #	preload("res://scenes/pieces/pink_piece.tscn"),		# placeholder
 ]
 
+func _init():
+	randomize()
 
 func _enter_tree():
 	$arena.connect("end_reached", self, "_on_arena_end_reached")
@@ -24,7 +26,6 @@ func _enter_tree():
 
 
 func _ready():
-	randomize()
 	quit_if_important_node_missing()
 
 

@@ -96,7 +96,7 @@ func die():
 	pass
 
 
-func attack_animation(pos):
+func attack_animation(_pos):
 #	animate and move to pos
 	pass
 
