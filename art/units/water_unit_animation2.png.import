@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/earth_unit_animation.png-589959c0ea14593526d13b264b7d5cc0.stex"
+path="res://.import/water_unit_animation2.png-89cd9e76d98271b60b4d6ca52d07416c.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/units/earth_unit_animation.png"
-dest_files=[ "res://.import/earth_unit_animation.png-589959c0ea14593526d13b264b7d5cc0.stex" ]
+source_file="res://art/units/water_unit_animation2.png"
+dest_files=[ "res://.import/water_unit_animation2.png-89cd9e76d98271b60b4d6ca52d07416c.stex" ]
 
 [params]
 

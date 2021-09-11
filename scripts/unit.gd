@@ -4,17 +4,18 @@ extends KinematicBody2D
 export (String) var color
 export (Array, String) var strong_vs
 export (Array, String) var weak_vs
-export (int) var pixel_size = 64 * scale.x
-export (float) var aggro_radius = pixel_size + pixel_size / 2
+export (float) var pixel_size = 64
+export (float) var aggro_radius = (pixel_size + pixel_size / 2) * scale.y
 export (float) var flee_speed_multiplier = 1
 export (float) var chase_speed_multiplier = 1.2
+
 
 var state
 var allegiance: Vector2 # aka what direction am I walking in (up or down)
 var enemies_near = []
 var closest_enemy: Unit
 
-enum State {MOVING, CHASING, FLEEING, ATTACKING, DYING}
+enum State {MOVING, CHASING, FLEEING, FIGHTING, DYING}
 enum Result {WIN, LOSE, TIE}
 
 
@@ -30,9 +31,18 @@ func _process(_delta):
 func process_enemies():
 	if enemies_near.size():
 		enemies_near.sort_custom(self, "sort_closest")
-		closest_enemy = enemies_near[0]
+		closest_enemy = get_closest_alive_enemy()
 	else:
 		closest_enemy = null
+
+
+func get_closest_alive_enemy():
+	var toret
+	for enemy in enemies_near:
+		if enemy.state != State.DYING:
+			toret = enemy
+			break
+	return toret
 
 
 func play_walk_animation():
@@ -48,7 +58,7 @@ func sort_closest(a, b):
 
 # return loser, if tied returns null
 func fight(enemy: Unit) -> Unit:
-	state = State.ATTACKING
+	state = State.FIGHTING
 	var fight_result = wins_vs(enemy)
 	if fight_result == Result.WIN:
 		attack_animation(enemy.position)
@@ -91,9 +101,10 @@ func move_and_fight(dir: Vector2, speed: float):
 
 
 func die():
-#	die animation
+	state = State.DYING
+	$AnimationPlayer.play("die")
+	yield($AnimationPlayer, "animation_finished")
 	queue_free()
-	pass
 
 
 func attack_animation(_pos):
@@ -117,7 +128,7 @@ func is_facing_me(enemy: Unit):
 
 # todo: possibly move facing detection from move_and_fight() to here instead
 func _on_aggro_radius_body_entered(body):
-	if body.allegiance != allegiance and not body in enemies_near:
+	if body.allegiance != allegiance and body.state != State.DYING and not body in enemies_near:
 		enemies_near.append(body)
 
 

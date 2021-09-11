@@ -6,3 +6,6 @@
 color = "earth"
 strong_vs = [ "water" ]
 weak_vs = [ "fire" ]
+
+[node name="Sprite" parent="." index="0"]
+frame = 1

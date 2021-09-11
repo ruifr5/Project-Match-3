@@ -54,10 +54,11 @@ func init_spawn_areas():
 		add_child(area)
 		area.add_child(collision_shape)
 		collision_shape.shape = CircleShape2D.new()
-		collision_shape.shape.radius = unit_half_size / 2
+		var radius = unit_half_size * 0.75
+		collision_shape.shape.radius = radius
 #		top positions
 		area.position.x = offset / 2 + x * offset
-		area.position.y = unit_half_size
+		area.position.y = radius
 		var allegiance
 		if x >= grid_width:
 #			bottom positions

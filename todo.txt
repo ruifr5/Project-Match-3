@@ -1,8 +1,8 @@
-fire unit sprite com animaçoes
 efeitos secundarios dos tiles
 	fire - dot num tile
 	water - freeze tile
 	earth - inutilizar um tile
-2 novos tiles
-	dark?
+2 novos tiles minimo, ideias:
+	dark - esconde tiles
+	inutil - nao faz nada, so ocupa espaço
 	???
