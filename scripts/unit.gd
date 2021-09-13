@@ -5,8 +5,8 @@ export (String) var color
 export (Array, String) var strong_vs
 export (Array, String) var weak_vs
 export (float) var pixel_size = 64
-export (float) var aggro_radius = (pixel_size + pixel_size / 2) * scale.y
-export (float) var flee_speed_multiplier = 1
+export (float) var aggro_radius = (pixel_size + pixel_size * 0.7) * scale.y
+export (float) var flee_speed_multiplier = 0.9
 export (float) var chase_speed_multiplier = 1.2
 
 
@@ -61,11 +61,9 @@ func fight(enemy: Unit) -> Unit:
 	state = State.FIGHTING
 	var fight_result = wins_vs(enemy)
 	if fight_result == Result.WIN:
-		attack_animation(enemy.position)
 		enemy.die()
 		return enemy
 	if fight_result == Result.LOSE:
-		enemy.attack_animation(position)
 		die()
 		return self
 #	Result.TIE
@@ -95,7 +93,7 @@ func move_and_fight(dir: Vector2, speed: float):
 		state = State.MOVING
 #	move and if colision happens fight
 	var collision = move_and_collide(dir * speed)
-	if collision && allegiance != collision.collider.allegiance:
+	if collision && allegiance != collision.collider.allegiance && collision.collider.state != State.DYING:
 #		who loses?
 		return fight(collision.collider)
 
@@ -105,11 +103,6 @@ func die():
 	$AnimationPlayer.play("die")
 	yield($AnimationPlayer, "animation_finished")
 	queue_free()
-
-
-func attack_animation(_pos):
-#	animate and move to pos
-	pass
 
 
 func wins_vs(enemy) -> int:
