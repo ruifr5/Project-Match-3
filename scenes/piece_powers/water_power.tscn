@@ -6,10 +6,12 @@
 script/source = "extends Power
 
 
-func exec(enemy_grid: MyGrid):
+func exec(enemy_grid: MyGrid, origin: Vector2):
 #	get random non-frozen piece
 	var piece = try_get_random_piece(enemy_grid)
 	piece.add_child(self)
+	
+	emit_particle_effect(origin, piece.position, Color.aqua)
 	
 #	freeze piece
 	piece.lock()

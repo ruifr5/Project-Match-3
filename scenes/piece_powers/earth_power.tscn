@@ -6,23 +6,28 @@
 script/source = "extends Power
 
 
-func exec(enemy_grid: MyGrid):
+func exec(enemy_grid: MyGrid, origin: Vector2):
 #	get random non-frozen piece
 	var piece = try_get_random_piece(enemy_grid)
 	piece.add_child(self)
 	
-#	inutilize piece
+	emit_particle_effect(origin, piece.position, Color.green)
+	
+#	store old piece info
 	var backup_color = piece.color
 	var backup_sprite_texture = piece.get_sprite_texture()
+	
+#	inutilize piece
 	piece.color = \"earth_power\"
 	piece.set_sprite_texture($Sprite.texture)
 	
 #	wait timer
 	yield(get_tree().create_timer(3), \"timeout\")
 	
-#	un-inutilize piece
+#	restore piece
 	piece.color = backup_color
 	piece.set_sprite_texture(backup_sprite_texture)
+
 	queue_free()
 "
 

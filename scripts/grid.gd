@@ -12,7 +12,7 @@ export (float) var collapse_timer = 0.1
 export (float) var refill_timer = 0
 export (float) var collapse_seconds = 0.5
 export (Vector2) var allegiance = Vector2.UP
-export (float) var locked_piece_move_distance = 2
+export (float) var locked_piece_move_distance = 5
 
 
 # ****IMPORTANT**** must be set
@@ -40,7 +40,7 @@ var old_movement_direction
 enum MovementType {INSTANT, ANIMATED}
 
 # signals
-signal matched(grid_positions, color)
+signal matched(grid_positions, centered_position, color)
 
 
 func _enter_tree():
@@ -324,7 +324,8 @@ func is_matched_horizontal(piece):
 func match_vertical(piece):
 	if !piece:
 		return
-	matched_pieces_vertical_append(piece)
+	var matched_pieces = []
+	matched_pieces.append(piece)
 	var grid_positions = PoolVector2Array([])	# array with matched positions to emit in signal
 	var grid_position = fix_wrapped_position(pixel_to_grid(piece.position))
 	var y = grid_position.y - 1
@@ -333,7 +334,7 @@ func match_vertical(piece):
 	while y >= 0:
 		var new_piece = all_pieces[grid_position.x][y]
 		if new_piece && compare_colors(piece.color, new_piece.color):
-			matched_pieces_vertical_append(new_piece)
+			matched_pieces.append(new_piece)
 			grid_positions.append(Vector2(grid_position.x, y))
 		else:
 			break
@@ -343,18 +344,20 @@ func match_vertical(piece):
 	while y < height:
 		var new_piece = all_pieces[grid_position.x][y]
 		if new_piece && compare_colors(piece.color, new_piece.color):
-			matched_pieces_vertical_append(new_piece)
+			matched_pieces.append(new_piece)
 			grid_positions.append(Vector2(grid_position.x, y))
 		else:
 			break
 		y += 1
-	emit_signal("matched", grid_positions, piece.color)
+	matched_pieces_vertical_append_multiple(matched_pieces)
+	emit_signal("matched", grid_positions, get_center_position(matched_pieces), piece.color)
 
 
 func match_horizontal(piece):
 	if !piece:
 		return
-	matched_pieces_horizontal_append(piece)
+	var matched_pieces = []
+	matched_pieces.append(piece)
 	var grid_positions = PoolVector2Array([])	# array with matched positions to emit in signal
 	var grid_position = fix_wrapped_position(pixel_to_grid(piece.position))
 	var x = grid_position.x - 1
@@ -364,7 +367,7 @@ func match_horizontal(piece):
 		var new_piece = all_pieces[x][grid_position.y]
 		if new_piece && compare_colors(piece.color, new_piece.color):
 			new_piece.mark_matched()
-			matched_pieces_horizontal_append(new_piece)
+			matched_pieces.append(new_piece)
 			grid_positions.append(Vector2(x, grid_position.y))
 		else:
 			break
@@ -375,24 +378,27 @@ func match_horizontal(piece):
 		var new_piece = all_pieces[x][grid_position.y]
 		if new_piece && compare_colors(piece.color, new_piece.color):
 			new_piece.mark_matched()
-			matched_pieces_horizontal_append(new_piece)
+			matched_pieces.append(new_piece)
 			grid_positions.append(Vector2(x, grid_position.y))
 		else:
 			break
 		x += 1
-	emit_signal("matched", grid_positions, piece.color)
+	matched_pieces_horizontal_append_multiple(matched_pieces)
+	emit_signal("matched", grid_positions, get_center_position(matched_pieces), piece.color)
 
 
-func matched_pieces_horizontal_append(piece):
-	if !(piece in matched_pieces_horizontal):
-		matched_pieces_horizontal.append(piece)
-		piece.mark_matched()
+func matched_pieces_horizontal_append_multiple(pieces: Array):
+	for piece in pieces:
+		if !(piece in matched_pieces_horizontal):
+			matched_pieces_horizontal.append(piece)
+			piece.mark_matched()
 
 
-func matched_pieces_vertical_append(piece):
-	if !(piece in matched_pieces_vertical):
-		matched_pieces_vertical.append(piece)
-		piece.mark_matched()
+func matched_pieces_vertical_append_multiple(pieces: Array):
+	for piece in pieces:
+		if !(piece in matched_pieces_vertical):
+			matched_pieces_vertical.append(piece)
+			piece.mark_matched()
 
 
 func get_matched_pieces() -> Array:
@@ -624,3 +630,14 @@ func get_random_piece() -> Piece:
 
 func compare_colors(color1, color2) -> bool:
 	return color1 and color2 and color1 == color2
+
+
+func get_center_position(pieces: Array):
+	var sum = Vector2(0, 0)
+	for piece in pieces:
+#		sometimes the real piece is outside the screen (side effect of mirror wrap), so it needs correcting
+		var corrected_position = Vector2(fmod(piece.position.x, (width * offset)), fmod(piece.position.y, (height * offset)))
+		if !should_mirror():
+			corrected_position.y += 1024 - (height * offset + 32)
+		sum += corrected_position
+	return sum / pieces.size()
