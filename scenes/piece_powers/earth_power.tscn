@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://art/placeholders/Ice.png" type="Texture" id=1]
+[ext_resource path="res://art/placeholders/Sinker.png" type="Texture" id=1]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Power
@@ -11,23 +11,24 @@ func exec(enemy_grid: MyGrid):
 	var piece = try_get_random_piece(enemy_grid)
 	piece.add_child(self)
 	
-#	freeze piece
-	piece.lock()
-	piece.set_sprite_color(Color.black)
+#	inutilize piece
+	var backup_color = piece.color
+	var backup_sprite_texture = piece.get_sprite_texture()
+	piece.color = \"earth_power\"
+	piece.set_sprite_texture($Sprite.texture)
 	
 #	wait timer
 	yield(get_tree().create_timer(3), \"timeout\")
 	
-#	unfreeze piece
-	piece.unlock()
-	piece.reset_sprite_color()
-	
+#	un-inutilize piece
+	piece.color = backup_color
+	piece.set_sprite_texture(backup_sprite_texture)
 	queue_free()
-
 "
 
-[node name="water_power" type="Node2D"]
+[node name="earth_power" type="Node2D"]
 script = SubResource( 1 )
 
 [node name="Sprite" type="Sprite" parent="."]
+visible = false
 texture = ExtResource( 1 )

@@ -51,7 +51,6 @@ func _enter_tree():
 	all_pieces = make_2d_array()
 	spawn_pieces(MovementType.INSTANT)
 
-
 func _input(event):
 	on_drag(event)
 	
@@ -183,7 +182,7 @@ func highlight_matches():
 					var left_piece = temp_arr[x-1][y]
 					var right_piece = temp_arr[x+1][y]
 					if left_piece && right_piece:
-						if left_piece.color == current_color && right_piece.color == current_color:
+						if compare_colors(left_piece.color, current_color) && compare_colors(right_piece.color, current_color):
 							left_piece.highlighted = true
 							piece.highlighted = true
 							right_piece.highlighted = true
@@ -192,7 +191,7 @@ func highlight_matches():
 					var up_piece = temp_arr[x][y-1]
 					var down_piece = temp_arr[x][y+1]
 					if up_piece && down_piece:
-						if up_piece.color == current_color && down_piece.color == current_color:
+						if compare_colors(up_piece.color, current_color) && compare_colors(down_piece.color, current_color):
 							up_piece.highlighted = true
 							piece.highlighted = true
 							down_piece.highlighted = true
@@ -275,11 +274,11 @@ func spawn_pieces(move_type = MovementType.ANIMATED):
 func match_at(x, y, color):
 	if x > 1:
 		if all_pieces[x-1][y] && all_pieces[x-2][y]:
-			if all_pieces[x-1][y].color == color && all_pieces[x-2][y].color == color:
+			if compare_colors(all_pieces[x-1][y].color, color) && compare_colors(all_pieces[x-2][y].color, color):
 				return true
 	if y > 1:
 		if all_pieces[x][y-1] && all_pieces[x][y-2]:
-			if all_pieces[x][y-1].color == color && all_pieces[x][y-2].color == color:
+			if compare_colors(all_pieces[x][y-1].color, color) && compare_colors(all_pieces[x][y-2].color, color):
 				return true
 	return false
 
@@ -297,7 +296,7 @@ func find_matches():
 					var left_piece = all_pieces[x-1][y]
 					var right_piece = all_pieces[x+1][y]
 					if left_piece && right_piece:
-						if left_piece.color == current_color && right_piece.color == current_color && !is_matched_horizontal(piece):
+						if compare_colors(left_piece.color, current_color) && compare_colors(right_piece.color, current_color) && !is_matched_horizontal(piece):
 							match_horizontal(piece)
 							match_found = true
 #				check vertical match
@@ -305,7 +304,7 @@ func find_matches():
 					var up_piece = all_pieces[x][y-1]
 					var down_piece = all_pieces[x][y+1]
 					if up_piece && down_piece:
-						if up_piece.color == current_color && down_piece.color == current_color && !is_matched_vertical(piece):
+						if compare_colors(up_piece.color, current_color) && compare_colors(down_piece.color, current_color) && !is_matched_vertical(piece):
 							match_vertical(piece)
 							match_found = true
 	locked = match_found
@@ -333,7 +332,7 @@ func match_vertical(piece):
 #	check up
 	while y >= 0:
 		var new_piece = all_pieces[grid_position.x][y]
-		if new_piece && piece.color == new_piece.color:
+		if new_piece && compare_colors(piece.color, new_piece.color):
 			matched_pieces_vertical_append(new_piece)
 			grid_positions.append(Vector2(grid_position.x, y))
 		else:
@@ -343,7 +342,7 @@ func match_vertical(piece):
 	y = grid_position.y + 1
 	while y < height:
 		var new_piece = all_pieces[grid_position.x][y]
-		if new_piece && piece.color == new_piece.color:
+		if new_piece && compare_colors(piece.color, new_piece.color):
 			matched_pieces_vertical_append(new_piece)
 			grid_positions.append(Vector2(grid_position.x, y))
 		else:
@@ -363,7 +362,7 @@ func match_horizontal(piece):
 #	check left
 	while x >= 0:
 		var new_piece = all_pieces[x][grid_position.y]
-		if new_piece && piece.color == new_piece.color:
+		if new_piece && compare_colors(piece.color, new_piece.color):
 			new_piece.mark_matched()
 			matched_pieces_horizontal_append(new_piece)
 			grid_positions.append(Vector2(x, grid_position.y))
@@ -374,7 +373,7 @@ func match_horizontal(piece):
 	x = grid_position.x + 1
 	while x < width:
 		var new_piece = all_pieces[x][grid_position.y]
-		if new_piece && piece.color == new_piece.color:
+		if new_piece && compare_colors(piece.color, new_piece.color):
 			new_piece.mark_matched()
 			matched_pieces_horizontal_append(new_piece)
 			grid_positions.append(Vector2(x, grid_position.y))
@@ -403,22 +402,6 @@ func get_matched_pieces() -> Array:
 func clear_matched_pieces_array():
 	matched_pieces_horizontal.clear()
 	matched_pieces_vertical.clear()
-
-
-# método para match em "blob"
-#func spread_match(origin_x, origin_y, color):
-#	var piece = all_pieces[origin_x][origin_y]
-#	if (piece.matched):
-#		return
-#	piece.mark_matched()
-#	for x in range(-1,2):
-#		var new_x = origin_x + x
-#		if  new_x >= 0 && new_x < width && all_pieces[new_x][origin_y].color == color:
-#			spread_match(new_x, origin_y, color)
-#	for y in range(-1,2):
-#		var new_y = origin_y + y
-#		if  new_y >= 0 && new_y < height && all_pieces[origin_x][new_y].color == color:
-#			spread_match(origin_x, new_y, color)
 
 
 func grid_to_pixel(position):
@@ -540,7 +523,8 @@ func destroy_matched():
 	yield(get_tree().create_timer(destroy_timer), "timeout")
 	for piece in get_matched_pieces():
 #		decrement count
-		piece_count_dict[piece.color] -= 1
+		if piece.color in piece_count_dict:
+			piece_count_dict[piece.color] -= 1
 #		destroy piece
 		piece.queue_free()
 		var piece_position = pixel_to_grid(piece.position)
@@ -636,3 +620,7 @@ func get_piece(grid_position) -> Piece:
 
 func get_random_piece() -> Piece:
 	return get_piece(Vector2(floor(rand_range(0, width)), floor(rand_range(0, height))))
+
+
+func compare_colors(color1, color2) -> bool:
+	return color1 and color2 and color1 == color2

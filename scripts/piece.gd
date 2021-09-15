@@ -76,3 +76,11 @@ func set_sprite_color(new_color: Color):
 
 func reset_sprite_color():
 	default_modulate = Color(1, 1, 1, 1)
+
+
+func set_sprite_texture(new_sprite_texture):
+	$SpriteScreenWrap.texture = new_sprite_texture
+
+
+func get_sprite_texture():
+	return $SpriteScreenWrap.texture

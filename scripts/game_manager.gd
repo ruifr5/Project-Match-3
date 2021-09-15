@@ -16,7 +16,8 @@ var possible_pieces = [
 ]
 
 var powers = {
-	water = preload("res://scenes/piece_powers/water_power.tscn")
+	water = preload("res://scenes/piece_powers/water_power.tscn"),
+	earth = preload("res://scenes/piece_powers/earth_power.tscn")
 }
 
 func _init():
@@ -72,7 +73,7 @@ func _on_arena_end_reached(position_x, allegiance):
 
 
 func activate_powers(color, match_count, enemy_grid):
-	var count = match_count - 3
+	var count = match_count - 2
 	if color in powers.keys() and count > 0:
 		for n in count:
 			var power = powers[color].instance()
