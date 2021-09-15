@@ -22,17 +22,6 @@ func _ready():
 	init_tile_positions()
 
 
-#func _input(event):
-#	if Input.is_action_just_pressed("ui_touch"):
-#		var grid_position = get_parent().pixel_to_grid(get_global_mouse_position())
-#		if get_parent().is_in_grid(grid_position):
-#			all_tiles[grid_position.x][grid_position.y].damage(1)
-#	if Input.is_action_just_pressed("ui_touch_2"):
-#		var grid_position = get_parent().pixel_to_grid(get_global_mouse_position())
-#		if get_parent().is_in_grid(grid_position):
-#			all_tiles[grid_position.x][grid_position.y].heal(1)
-
-
 func make_2d_array():
 	var array = []
 	for x in width:

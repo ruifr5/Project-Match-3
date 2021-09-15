@@ -12,6 +12,7 @@ export (float) var collapse_timer = 0.1
 export (float) var refill_timer = 0
 export (float) var collapse_seconds = 0.5
 export (Vector2) var allegiance = Vector2.UP
+export (float) var locked_piece_move_distance = 2
 
 
 # ****IMPORTANT**** must be set
@@ -41,7 +42,7 @@ enum MovementType {INSTANT, ANIMATED}
 # signals
 signal matched(grid_positions, color)
 
-# Called when the node enters the scene tree for the first time.
+
 func _enter_tree():
 	if !possible_pieces:
 		queue_free()
@@ -49,11 +50,6 @@ func _enter_tree():
 	init_piece_count_array()
 	all_pieces = make_2d_array()
 	spawn_pieces(MovementType.INSTANT)
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(_delta):
-#	pass
 
 
 func _input(event):
@@ -77,17 +73,35 @@ func on_drag(event):
 			drag_position = event.position
 		
 		var	new_direction = clamp_movement_distance(zero_smallest_dimention(drag_position - touch_down))
-
-		if !old_movement_direction:
-			old_movement_direction = new_direction
-		elif abs(old_movement_direction.x) == 0 && abs(new_direction.x) != 0:
-			reset_column_pixel_position(movement_start_grid_position.x)
-		elif abs(old_movement_direction.y) == 0 &&  abs(new_direction.y) != 0:
-			reset_row_pixel_position(movement_start_grid_position.y)
+		reset_old_moving_pieces_if_movement_changed_axis(new_direction)
+		new_direction = clamp_if_locked(new_direction)
 		
 		move_pieces(new_direction)
 		old_movement_direction = new_direction
 		highlight_matches()
+
+
+func clamp_if_locked(direction):
+	var is_locked = false
+#	if vertical movement
+	if direction.x == 0:
+		is_locked = is_vertical_locked(movement_start_grid_position)
+#	if horizontal movement
+	elif direction.y == 0:
+		is_locked = is_horizontal_locked(movement_start_grid_position)
+#	limit direction if the row/column is locked
+	if is_locked:
+		direction = direction.clamped(locked_piece_move_distance)
+	return direction
+
+
+func reset_old_moving_pieces_if_movement_changed_axis(direction):
+		if !old_movement_direction:
+			old_movement_direction = direction
+		elif abs(old_movement_direction.x) == 0 && abs(direction.x) != 0:
+			reset_column_pixel_position(movement_start_grid_position.x)
+		elif abs(old_movement_direction.y) == 0 &&  abs(direction.y) != 0:
+			reset_row_pixel_position(movement_start_grid_position.y)
 
 
 func on_touch(event):
@@ -135,10 +149,13 @@ func on_mouse_click():
 		highlight_matches()
 		
 #	right click down
-#	if Input.is_action_just_pressed("ui_touch_2"):
-#		var touch_down_grid_position = pixel_to_grid(get_global_mouse_position())
-#		if is_in_grid(touch_down_grid_position):
-#			pass
+	if Input.is_action_just_pressed("ui_touch_2"):
+		var touch_down_grid_position = pixel_to_grid(get_global_mouse_position())
+		if is_in_grid(touch_down_grid_position):
+			if all_pieces[touch_down_grid_position.x][touch_down_grid_position.y].locked:
+				unlock_grid_position(touch_down_grid_position)
+			else:
+				lock_grid_position(touch_down_grid_position)
 
 
 func init_piece_count_array():
@@ -577,12 +594,37 @@ func refill_grid():
 	find_matches()
 
 
-# debug function
-func print_colors(arr):
-	var toprint = make_2d_array()
+func lock_grid_position(grid_position: Vector2):
+	var piece = all_pieces[grid_position.x][grid_position.y]
+	if piece:
+		piece.lock()
+
+
+func unlock_grid_position(grid_position: Vector2):
+	var piece = all_pieces[grid_position.x][grid_position.y]
+	if piece:
+		piece.unlock()
+
+
+func unlock_all():
 	for x in width:
 		for y in height:
-			toprint[x][y] = (arr[x][y].color)
-	for col in toprint:
-		print(col)
-	print("-------------------------------------------------------")
+			var piece = all_pieces[x][y]
+			if piece:
+				piece.unlock()
+
+
+func is_horizontal_locked(grid_position: Vector2) -> bool:
+	for x in width:
+		var piece = all_pieces[x][grid_position.y]
+		if piece and piece.locked:
+			return true
+	return false
+
+
+func is_vertical_locked(grid_position: Vector2) -> bool:
+	for y in height:
+		var piece = all_pieces[grid_position.x][y]
+		if piece and piece.locked:
+			return true
+	return false

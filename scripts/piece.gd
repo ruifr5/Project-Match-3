@@ -7,6 +7,12 @@ var movement_start_position
 var old_movement_distance
 var matched = false
 var highlighted = false
+var locked = false
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(_delta):
+	check_if_highlighted()
 
 
 func move_as_group(difference, duration = .5, trans_type = Tween.TRANS_EXPO, ease_type = Tween.EASE_OUT):
@@ -53,6 +59,11 @@ func check_if_highlighted():
 		$SpriteScreenWrap.modulate = Color(1, 1, 1, 1)
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta):
-	check_if_highlighted()
+func lock():
+	locked = true
+	modulate = Color.black # todo: missing freeze sprite
+
+
+func unlock():
+	locked = false
+	modulate = Color(1, 1, 1, 1) # todo: missing freeze sprite
