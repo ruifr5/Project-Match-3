@@ -74,6 +74,8 @@ func fight(enemy: Unit) -> Unit:
 
 # return loser, if tied returns null
 func move_and_fight(dir: Vector2, speed: float):
+	if state == State.DYING:
+		return
 #	if there is an enemy and is in front of self
 	if closest_enemy and is_facing_me(closest_enemy):
 		var fight_result = wins_vs(closest_enemy)
