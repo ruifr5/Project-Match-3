@@ -11,8 +11,8 @@ var possible_pieces = [
 	preload("res://scenes/pieces/water_piece.tscn"),
 	preload("res://scenes/pieces/earth_piece.tscn"),
 	preload("res://scenes/pieces/fire_piece.tscn"),
+	preload("res://scenes/pieces/useless_piece.tscn"),
 #	preload("res://scenes/pieces/yellow_piece.tscn"),	# placeholder
-#	preload("res://scenes/pieces/pink_piece.tscn"),		# placeholder
 ]
 
 var powers = {
@@ -20,8 +20,8 @@ var powers = {
 	earth = preload("res://scenes/piece_powers/earth_power.tscn")
 }
 
-func _init():
-	randomize()
+#func _init():
+#	randomize()
 
 
 func _enter_tree():

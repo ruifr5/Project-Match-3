@@ -1,10 +1,18 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=8 format=2]
 
-[sub_resource type="Gradient" id=3]
-colors = PoolColorArray( 1, 1, 1, 0, 1, 1, 1, 1 )
+[sub_resource type="Gradient" id=1]
+offsets = PoolRealArray( 0, 0, 0.199997, 1 )
+colors = PoolColorArray( 1, 1, 1, 0, 1, 1, 1, 0.286275, 1, 1, 1, 0.670588, 1, 1, 1, 0.423529 )
 
-[sub_resource type="GradientTexture" id=4]
-gradient = SubResource( 3 )
+[sub_resource type="GradientTexture" id=2]
+gradient = SubResource( 1 )
+
+[sub_resource type="Curve" id=3]
+min_value = 0.3
+_data = [ Vector2( 0, 0.281818 ), 0.0, 0.0, 0, 0, Vector2( 0.804124, 0.758182 ), 0.979123, 0.979123, 0, 0, Vector2( 1, 0.688182 ), 0.0, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=4]
+curve = SubResource( 3 )
 
 [sub_resource type="ParticlesMaterial" id=5]
 resource_local_to_scene = true
@@ -15,8 +23,8 @@ gravity = Vector3( 0, 0, 0 )
 initial_velocity = 1024.0
 orbit_velocity = 0.0
 orbit_velocity_random = 0.0
-scale = 0.4
-color_ramp = SubResource( 4 )
+scale_curve = SubResource( 4 )
+color_ramp = SubResource( 2 )
 
 [sub_resource type="StreamTexture" id=6]
 flags = 4

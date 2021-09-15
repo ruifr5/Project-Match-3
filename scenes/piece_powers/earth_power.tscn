@@ -5,28 +5,29 @@
 [sub_resource type="GDScript" id=1]
 script/source = "extends Power
 
+export (String) var new_piece_color = \"useless\"
 
 func exec(enemy_grid: MyGrid, origin: Vector2):
 #	get random non-frozen piece
-	var piece = try_get_random_piece(enemy_grid)
+	var piece = try_get_random_piece(enemy_grid, new_piece_color)
 	piece.add_child(self)
 	
-	emit_particle_effect(origin, piece.position, Color.green)
+	var particle_time = emit_particle_effect(origin, piece.position, Color.green)
 	
-#	store old piece info
-	var backup_color = piece.color
-	var backup_sprite_texture = piece.get_sprite_texture()
+##	store old piece info
+#	var backup_color = piece.color
+#	var backup_sprite_texture = piece.get_sprite_texture()
 	
 #	inutilize piece
-	piece.color = \"earth_power\"
+	piece.color = new_piece_color
 	piece.set_sprite_texture($Sprite.texture)
 	
 #	wait timer
-	yield(get_tree().create_timer(3), \"timeout\")
+	yield(get_tree().create_timer(particle_time), \"timeout\")
 	
-#	restore piece
-	piece.color = backup_color
-	piece.set_sprite_texture(backup_sprite_texture)
+##	restore piece
+#	piece.color = backup_color
+#	piece.set_sprite_texture(backup_sprite_texture)
 
 	queue_free()
 "
