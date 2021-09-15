@@ -628,3 +628,11 @@ func is_vertical_locked(grid_position: Vector2) -> bool:
 		if piece and piece.locked:
 			return true
 	return false
+
+
+func get_piece(grid_position) -> Piece:
+	return all_pieces[grid_position.x][grid_position.y]
+
+
+func get_random_piece() -> Piece:
+	return get_piece(Vector2(floor(rand_range(0, width)), floor(rand_range(0, height))))

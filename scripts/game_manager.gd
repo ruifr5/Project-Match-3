@@ -15,6 +15,9 @@ var possible_pieces = [
 #	preload("res://scenes/pieces/pink_piece.tscn"),		# placeholder
 ]
 
+var powers = {
+	water = preload("res://scenes/piece_powers/water_power.tscn")
+}
 
 func _init():
 	randomize()
@@ -52,11 +55,13 @@ func mid_position_x(position_array: Array) -> int:
 func _on_grid_player1_matched(grid_positions, color):
 	$arena.queue_spawn_unit(mid_position_x(grid_positions), Vector2.UP, color)
 	$grid_player1/grid_hp.heal_positions(grid_positions)
+	activate_powers(color, grid_positions.size(), $grid_player2)
 
 
 func _on_grid_player2_matched(grid_positions, color):
 	$arena.queue_spawn_unit(mid_position_x(grid_positions), Vector2.DOWN, color)
 	$grid_player2/grid_hp.heal_positions(grid_positions)
+	activate_powers(color, grid_positions.size(), $grid_player1)
 
 
 func _on_arena_end_reached(position_x, allegiance):
@@ -64,3 +69,11 @@ func _on_arena_end_reached(position_x, allegiance):
 		$grid_player1/grid_hp.attack_col(position_x)
 	else:
 		$grid_player2/grid_hp.attack_col(position_x)
+
+
+func activate_powers(color, match_count, enemy_grid):
+	var count = match_count - 3
+	if color in powers.keys() and count > 0:
+		for n in count:
+			var power = powers[color].instance()
+			power.exec(enemy_grid)

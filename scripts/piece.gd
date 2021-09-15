@@ -1,7 +1,10 @@
 class_name Piece
 extends Node2D
 
-export var color: String;
+export (String) var color;
+export (Color) var default_modulate = Color(1, 1, 1, 1)
+export (Color) var highlighted_modulate = Color(2, 2, 2, 1)
+export (Color) var matched_modulate = Color(1, 1, 1, 0.3)
 
 var movement_start_position
 var old_movement_distance
@@ -12,7 +15,7 @@ var locked = false
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
-	check_if_highlighted()
+	update_color()
 
 
 func move_as_group(difference, duration = .5, trans_type = Tween.TRANS_EXPO, ease_type = Tween.EASE_OUT):
@@ -47,23 +50,29 @@ func remove_mirrors():
 
 func mark_matched():
 	matched = true
-	$SpriteScreenWrap.modulate = Color(1, 1, 1, 0.3)
+	$SpriteScreenWrap.modulate = matched_modulate
 
 
-func check_if_highlighted():
+func update_color():
 	if matched:
 		return
 	elif highlighted:
-		$SpriteScreenWrap.modulate = Color(2, 2, 2, 1)
+		$SpriteScreenWrap.modulate = highlighted_modulate
 	else:
-		$SpriteScreenWrap.modulate = Color(1, 1, 1, 1)
+		$SpriteScreenWrap.modulate = default_modulate
 
 
 func lock():
 	locked = true
-	modulate = Color.black # todo: missing freeze sprite
 
 
 func unlock():
 	locked = false
-	modulate = Color(1, 1, 1, 1) # todo: missing freeze sprite
+
+
+func set_sprite_color(new_color: Color):
+	default_modulate = new_color
+
+
+func reset_sprite_color():
+	default_modulate = Color(1, 1, 1, 1)

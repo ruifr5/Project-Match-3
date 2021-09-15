@@ -1,0 +1,36 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://art/placeholders/Ice.png" type="Texture" id=1]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node2D
+
+
+func exec(enemy_grid: MyGrid):
+#	get random non-frozen piece
+	var piece: Piece = enemy_grid.get_random_piece()
+	var max_loops = 10
+	while piece.has_node(\"water_power\") and max_loops > 0:
+		piece = enemy_grid.get_random_piece()
+		max_loops -= 1
+	piece.add_child(self)
+	
+#	freeze piece
+	piece.lock()
+	piece.set_sprite_color(Color.black)
+	
+#	wait timer
+	yield(get_tree().create_timer(3), \"timeout\")
+	
+#	unfreeze
+	piece.unlock()
+	piece.reset_sprite_color()
+	queue_free()
+"
+
+[node name="water_power" type="Node2D"]
+script = SubResource( 1 )
+
+[node name="Sprite" type="Sprite" parent="."]
+scale = Vector2( 0.5, 0.5 )
+texture = ExtResource( 1 )
