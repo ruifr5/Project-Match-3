@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/fire.png-8b4fe9b990e38fa055706ed672410899.stex"
+path="res://.import/useless_tile_gray.png-8715b2bcc40c786c661de371cbf5d255.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/tiles/fire.png"
-dest_files=[ "res://.import/fire.png-8b4fe9b990e38fa055706ed672410899.stex" ]
+source_file="res://art/placeholders/useless_tile_gray.png"
+dest_files=[ "res://.import/useless_tile_gray.png-8715b2bcc40c786c661de371cbf5d255.stex" ]
 
 [params]
 

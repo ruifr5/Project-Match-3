@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://art/placeholders/Sinker.png" type="Texture" id=1]
+[ext_resource path="res://art/placeholders/useless_tile_brown.png" type="Texture" id=1]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Power
@@ -21,7 +21,6 @@ func exec(enemy_grid: MyGrid, origin: Vector2):
 #	inutilize piece
 	piece.color = new_piece_color
 	piece.set_sprite_texture($Sprite.texture)
-	piece.set_sprite_color(Color(0.7, 1, 0.7, 1))
 	
 #	wait timer
 	yield(get_tree().create_timer(particle_time), \"timeout\")

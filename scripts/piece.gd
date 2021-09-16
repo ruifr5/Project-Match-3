@@ -12,6 +12,12 @@ var matched = false
 var highlighted = false
 var locked = false
 
+var inverted_texture_path
+
+
+func _enter_tree():
+	inverted_texture_path = "res://art/tiles/%s_tile_flip.png" % color
+
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
@@ -30,6 +36,7 @@ func move(target, duration = .5, trans_type = Tween.TRANS_EXPO, ease_type = Twee
 	$move_tween.interpolate_property(self, "position", position, target, duration, trans_type, ease_type)
 	$move_tween.start()
 	pass
+
 
 func reset_mirrors_if_passed_origin(new_movement_distance):
 	if !old_movement_distance:
@@ -78,9 +85,15 @@ func reset_sprite_color():
 	default_modulate = Color(1, 1, 1, 1)
 
 
-func set_sprite_texture(new_sprite_texture):
-	$SpriteScreenWrap.texture = new_sprite_texture
+func set_sprite_texture(new_sprite_texture: Texture):
+	$SpriteScreenWrap.set_texture(new_sprite_texture)
 
 
 func get_sprite_texture():
 	return $SpriteScreenWrap.texture
+
+
+# todo: load nao é ideal para eficiencia
+func flip_v_texture():
+	if color:
+		set_sprite_texture(load(inverted_texture_path))

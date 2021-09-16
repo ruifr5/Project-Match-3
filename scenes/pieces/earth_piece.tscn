@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://scenes/piece.tscn" type="PackedScene" id=1]
-[ext_resource path="res://art/tiles/earth.png" type="Texture" id=2]
+[ext_resource path="res://art/tiles/earth_tile.png" type="Texture" id=2]
 
 [node name="earth_piece" instance=ExtResource( 1 )]
 color = "earth"

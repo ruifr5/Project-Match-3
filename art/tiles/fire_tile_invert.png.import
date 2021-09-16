@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/earth.png-a4e4126525f9fde481b0f64e5758716d.stex"
+path="res://.import/fire_tile_invert.png-df1a8fc81300066b69fd5efb7204da55.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/tiles/earth.png"
-dest_files=[ "res://.import/earth.png-a4e4126525f9fde481b0f64e5758716d.stex" ]
+source_file="res://art/tiles/fire_tile_invert.png"
+dest_files=[ "res://.import/fire_tile_invert.png-df1a8fc81300066b69fd5efb7204da55.stex" ]
 
 [params]
 

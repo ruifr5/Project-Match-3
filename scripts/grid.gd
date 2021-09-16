@@ -59,7 +59,7 @@ func _input(event):
 		on_touch(event)
 
 
-func _process(delta):
+func _process(_delta):
 	if controlling:
 		highlight_matches()
 	else:
@@ -239,7 +239,7 @@ func spawn_pieces(move_type = MovementType.ANIMATED):
 	#			choose a random number and store it
 				var rand = floor(rand_range(0, possible_pieces.size()))
 	#			instanciate that piece from the array
-				var piece = possible_pieces[rand].instance()
+				var piece: Piece = possible_pieces[rand].instance()
 	#			remove starting matches
 				var new_piece_id = get_lowest_count_piece_idx()
 				var count = 0
@@ -268,7 +268,7 @@ func spawn_pieces(move_type = MovementType.ANIMATED):
 	#			set wrap area information
 				sprite_screen_wrap.wrapArea = wrap_area
 				if should_mirror():
-					sprite_screen_wrap.flip_v = true
+					piece.flip_v_texture()
 				if move_type == MovementType.INSTANT:
 					piece.position = grid_to_pixel(Vector2(x,y))
 				else:

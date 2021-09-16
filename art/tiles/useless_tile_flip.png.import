@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/tomato.png-e02cdb89fd5a034c56569f2288c32058.stex"
+path="res://.import/useless_tile_flip.png-329a8eb0a39300306fd4be883f9fde8c.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/placeholders/tomato.png"
-dest_files=[ "res://.import/tomato.png-e02cdb89fd5a034c56569f2288c32058.stex" ]
+source_file="res://art/tiles/useless_tile_flip.png"
+dest_files=[ "res://.import/useless_tile_flip.png-329a8eb0a39300306fd4be883f9fde8c.stex" ]
 
 [params]
 

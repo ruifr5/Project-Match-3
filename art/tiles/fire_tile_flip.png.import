@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/water.png-c32fc6ff4421e2fd71ae2d0698068939.stex"
+path="res://.import/fire_tile_flip.png-337fd7f17689dfbbc17c7e81e4bcbc1a.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/tiles/water.png"
-dest_files=[ "res://.import/water.png-c32fc6ff4421e2fd71ae2d0698068939.stex" ]
+source_file="res://art/tiles/fire_tile_flip.png"
+dest_files=[ "res://.import/fire_tile_flip.png-337fd7f17689dfbbc17c7e81e4bcbc1a.stex" ]
 
 [params]
 
