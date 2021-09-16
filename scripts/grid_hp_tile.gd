@@ -43,7 +43,3 @@ func restore():
 # keep hp in valid values
 func clamp_hp():
 	hp = clamp(hp, 0, max_hp)
-
-
-func shake():
-	pass # todo: shake animation

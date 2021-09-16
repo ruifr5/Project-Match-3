@@ -59,6 +59,13 @@ func _input(event):
 		on_touch(event)
 
 
+func _process(delta):
+	if controlling:
+		highlight_matches()
+	else:
+		clear_highlighted()
+
+
 func should_mirror():
 	return allegiance == Vector2.DOWN
 
@@ -77,7 +84,6 @@ func on_drag(event):
 		
 		move_pieces(new_direction)
 		old_movement_direction = new_direction
-		highlight_matches()
 
 
 func clamp_if_locked(direction):
@@ -147,14 +153,14 @@ func on_mouse_click():
 		reset_pieces_pixel_position()
 		highlight_matches()
 		
-#	right click down
-	if Input.is_action_just_pressed("ui_touch_2"):
-		var touch_down_grid_position = pixel_to_grid(get_global_mouse_position())
-		if is_in_grid(touch_down_grid_position):
-			if all_pieces[touch_down_grid_position.x][touch_down_grid_position.y].locked:
-				unlock_grid_position(touch_down_grid_position)
-			else:
-				lock_grid_position(touch_down_grid_position)
+##	right click down
+#	if Input.is_action_just_pressed("ui_touch_2"):
+#		var touch_down_grid_position = pixel_to_grid(get_global_mouse_position())
+#		if is_in_grid(touch_down_grid_position):
+#			if all_pieces[touch_down_grid_position.x][touch_down_grid_position.y].locked:
+#				unlock_grid_position(touch_down_grid_position)
+#			else:
+#				lock_grid_position(touch_down_grid_position)
 
 
 func init_piece_count_array():
@@ -164,13 +170,17 @@ func init_piece_count_array():
 		piece.queue_free()
 
 
-# todo: criaçao continua de arrays, percorre 2 vezes o array todo, é cópia do find_matches, optimizar
-func highlight_matches():
-	var temp_arr = get_array_pixel_position_converted_to_grid_position()
-#	reset nos highlights
+func clear_highlighted():
 	for x in width:
 		for y in height:
-			temp_arr[x][y].highlighted = false
+			if all_pieces[x][y]:
+				all_pieces[x][y].highlighted = false
+
+
+# todo: criaçao contínua de arrays, percorre 2 vezes o array todo, é cópia do find_matches, optimizar
+func highlight_matches():
+	var temp_arr = get_array_pixel_position_converted_to_grid_position()
+	clear_highlighted()
 #	set higlights
 	for x in width:
 		for y in height:

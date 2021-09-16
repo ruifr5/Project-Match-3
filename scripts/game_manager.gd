@@ -20,8 +20,8 @@ var powers = {
 	earth = preload("res://scenes/piece_powers/earth_power.tscn")
 }
 
-#func _init():
-#	randomize()
+func _init():
+	randomize()
 
 
 func _enter_tree():

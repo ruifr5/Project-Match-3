@@ -36,7 +36,7 @@ func _ready():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _physics_process(_delta):
 	move_all_units()
-	touch_input()
+#	touch_input()
 	try_to_spawn_next_unit()
 
 
@@ -98,16 +98,16 @@ func queue_spawn_unit(grid_position_x, run_direction, color):
 	spawn_queues[run_direction][grid_position_x].append([grid_position_x, run_direction, color])
 
 
-func touch_input():
+#func touch_input():
 #	if Input.is_action_just_pressed("ui_touch"):
 ##		debug
 #		spawn_unit_debug(get_local_mouse_position(), Vector2.UP, "fire")
-	if Input.is_action_just_pressed("ui_touch_2"):
-#		debug
-		for x in 1:
-			yield(get_tree().create_timer(0.1), "timeout")
-#			spawn_unit_debug(get_local_mouse_position(), Vector2.DOWN, ["fire","fire","fire"][floor(rand_range(0,3))])
-			queue_spawn_unit(0, Vector2.DOWN, ["fire","water","earth"][floor(rand_range(0,3))])
+#	if Input.is_action_just_pressed("ui_touch_2"):
+##		debug
+#		for x in 1:
+#			yield(get_tree().create_timer(0.1), "timeout")
+##			spawn_unit_debug(get_local_mouse_position(), Vector2.DOWN, ["fire","fire","fire"][floor(rand_range(0,3))])
+#			queue_spawn_unit(0, Vector2.DOWN, ["fire","water","earth"][floor(rand_range(0,3))])
 
 
 func spawn_unit(grid_position_x, run_direction, color):

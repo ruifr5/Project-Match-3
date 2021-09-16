@@ -21,6 +21,7 @@ func exec(enemy_grid: MyGrid, origin: Vector2):
 #	inutilize piece
 	piece.color = new_piece_color
 	piece.set_sprite_texture($Sprite.texture)
+	piece.set_sprite_color(Color(0.7, 1, 0.7, 1))
 	
 #	wait timer
 	yield(get_tree().create_timer(particle_time), \"timeout\")
