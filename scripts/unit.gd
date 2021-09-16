@@ -6,8 +6,8 @@ export (Array, String) var strong_vs
 export (Array, String) var weak_vs
 export (float) var pixel_size = 64
 export (float) var aggro_radius = (pixel_size + pixel_size * 0.7) * scale.y
-export (float) var flee_speed_multiplier = 0.9
-export (float) var chase_speed_multiplier = 1.2
+export (float) var flee_speed_multiplier = 0.8
+export (float) var chase_speed_multiplier = 1.5
 
 
 var state
@@ -36,13 +36,21 @@ func process_enemies():
 		closest_enemy = null
 
 
+# if closest is a Result.TIE looks for a better outcome
 func get_closest_alive_enemy():
-	var toret
+	var prefered_enemy
+	var closest_enemy
 	for enemy in enemies_near:
 		if enemy.state != State.DYING:
-			toret = enemy
+			if !closest_enemy:
+				closest_enemy = enemy
+			var fight_result = wins_vs(enemy)
+			if fight_result == Result.TIE:
+				continue
+			if fight_result == Result.WIN:
+				prefered_enemy = enemy
 			break
-	return toret
+	return prefered_enemy if prefered_enemy else closest_enemy
 
 
 func play_walk_animation():
@@ -74,6 +82,7 @@ func fight(enemy: Unit) -> Unit:
 
 # return loser, if tied returns null
 func move_and_fight(dir: Vector2, speed: float):
+	var base_speed = Vector2(speed, speed)
 	if state == State.DYING:
 		return
 #	if there is an enemy and is in front of self
@@ -84,17 +93,17 @@ func move_and_fight(dir: Vector2, speed: float):
 		if fight_result == Result.WIN or fight_result == Result.TIE:
 			state = State.CHASING
 			dir = new_dir
-			speed *= chase_speed_multiplier
+			base_speed.x *= chase_speed_multiplier
 #			when fleeing
 		elif fight_result == Result.LOSE:
 			state = State.FLEEING
 			dir.x = dir.x + new_dir.x * -1
-			speed *= flee_speed_multiplier
+			base_speed.x *= flee_speed_multiplier
 #	no enemy
 	else:
 		state = State.MOVING
 #	move and if colision happens fight
-	var collision = move_and_collide(dir * speed)
+	var collision = move_and_collide(dir * base_speed)
 	if collision && allegiance != collision.collider.allegiance && collision.collider.state != State.DYING:
 #		who loses?
 		return fight(collision.collider)

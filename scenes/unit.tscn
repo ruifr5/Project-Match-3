@@ -72,6 +72,7 @@ visible = false
 shape = SubResource( 1 )
 
 [node name="aggro_area" type="Area2D" parent="."]
+visible = false
 monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="aggro_area"]
