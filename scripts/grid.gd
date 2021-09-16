@@ -157,10 +157,7 @@ func on_mouse_click():
 #	if Input.is_action_just_pressed("ui_touch_2"):
 #		var touch_down_grid_position = pixel_to_grid(get_global_mouse_position())
 #		if is_in_grid(touch_down_grid_position):
-#			if all_pieces[touch_down_grid_position.x][touch_down_grid_position.y].locked:
-#				unlock_grid_position(touch_down_grid_position)
-#			else:
-#				lock_grid_position(touch_down_grid_position)
+#			pass
 
 
 func init_piece_count_array():
@@ -306,7 +303,7 @@ func find_matches():
 					var left_piece = all_pieces[x-1][y]
 					var right_piece = all_pieces[x+1][y]
 					if left_piece && right_piece:
-						if compare_colors(left_piece.color, current_color) && compare_colors(right_piece.color, current_color) && !is_matched_horizontal(piece):
+						if compare_colors(left_piece.color, current_color) && compare_colors(right_piece.color, current_color) && !is_in_matched_horizontal(piece):
 							match_horizontal(piece)
 							match_found = true
 #				check vertical match
@@ -314,7 +311,7 @@ func find_matches():
 					var up_piece = all_pieces[x][y-1]
 					var down_piece = all_pieces[x][y+1]
 					if up_piece && down_piece:
-						if compare_colors(up_piece.color, current_color) && compare_colors(down_piece.color, current_color) && !is_matched_vertical(piece):
+						if compare_colors(up_piece.color, current_color) && compare_colors(down_piece.color, current_color) && !is_in_matched_vertical(piece):
 							match_vertical(piece)
 							match_found = true
 	locked = match_found
@@ -323,11 +320,11 @@ func find_matches():
 	return match_found
 
 
-func is_matched_vertical(piece):
+func is_in_matched_vertical(piece):
 	return piece in matched_pieces_vertical
 
 
-func is_matched_horizontal(piece):
+func is_in_matched_horizontal(piece):
 	return piece in matched_pieces_horizontal
 
 
@@ -634,8 +631,64 @@ func get_piece(grid_position) -> Piece:
 	return all_pieces[grid_position.x][grid_position.y]
 
 
-func get_random_piece() -> Piece:
+func get_random_piece(color_to_avoid = null) -> Piece:
+	if color_to_avoid:
+		var safe_spaces = []
+		for x in width:
+			for y in height:
+				var piece = all_pieces[x][y]
+				if piece and !(piece in safe_spaces):
+					if !is_possible_match_horizontal(x, y, color_to_avoid) and !is_possible_match_vertical(x, y, color_to_avoid):
+						if piece.color != color_to_avoid:
+							safe_spaces.append(piece)
+		if safe_spaces.size():
+			return safe_spaces[floor(rand_range(0, safe_spaces.size()))]
 	return get_piece(Vector2(floor(rand_range(0, width)), floor(rand_range(0, height))))
+
+
+func is_possible_match_horizontal(x, y, color, starting_piece = null) -> bool:
+	var piece_right
+	var piece_left
+	if x + 1 < width:
+		piece_right = all_pieces[x + 1][y]
+	if x - 1 >= 0:
+		piece_left = all_pieces[x - 1][y]
+	var matched_right = piece_right and piece_right.color == color
+	var matched_left = piece_left and piece_left.color == color
+	if (matched_right or piece_right == starting_piece) and (matched_left or piece_left == starting_piece):
+		return true
+	elif starting_piece:
+		return false
+		
+	var result = false
+	if matched_right:
+		result = is_possible_match_horizontal(x + 1, y, color, all_pieces[x][y])
+	elif matched_left:
+		result = is_possible_match_horizontal(x - 1, y, color, all_pieces[x][y])
+	return result
+
+
+func is_possible_match_vertical(x, y, color, starting_piece = null) -> bool:
+	var piece_above
+	var piece_below
+	if y + 1 < height:
+		piece_above = all_pieces[x][y + 1]
+	if y - 1 >= 0:
+		piece_below = all_pieces[x][y - 1]
+	var matched_above = piece_above and piece_above.color == color
+	var matched_below = piece_below and piece_below.color == color
+	if (matched_above or piece_above == starting_piece) and (matched_below or piece_below == starting_piece):
+		return true
+	elif starting_piece:
+		return false
+		
+	var result = false
+	if matched_above:
+		result = is_possible_match_vertical(x, y + 1, color, all_pieces[x][y])
+	elif matched_below:
+		result = is_possible_match_vertical(x, y - 1, color, all_pieces[x][y])
+	return result
+	
 
 
 func compare_colors(color1, color2) -> bool:

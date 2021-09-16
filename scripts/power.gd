@@ -3,11 +3,11 @@ extends Node2D
 
 const particle_effect = preload("res://scenes/particle_effect.tscn")
 
-func try_get_random_piece(enemy_grid, color_to_avoid = "") -> Piece:
-	var piece: Piece = enemy_grid.get_random_piece()
+func try_get_random_piece(enemy_grid, color_to_avoid = null) -> Piece:
+	var piece: Piece = enemy_grid.get_random_piece(color_to_avoid)
 	var max_loops = 10
 	while (piece.has_node(get_name()) or piece.color == color_to_avoid) and max_loops > 0:
-		piece = enemy_grid.get_random_piece()
+		piece = enemy_grid.get_random_piece(color_to_avoid)
 		max_loops -= 1
 	return piece
 
