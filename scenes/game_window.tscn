@@ -117,7 +117,8 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="fps" type="Label" parent="."]
+[node name="fps_label" type="Label" parent="."]
+visible = false
 margin_right = 40.0
 margin_bottom = 14.0
 rect_scale = Vector2( 2, 2 )
@@ -157,5 +158,19 @@ text = "fps: 0"
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="winner_label" type="Label" parent="."]
+visible = false
+margin_right = 192.0
+margin_bottom = 341.0
+rect_scale = Vector2( 3, 3 )
+text = "%s wins!"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
 [connection signal="matched" from="grid_player1" to="." method="_on_grid_player1_matched"]
+[connection signal="gameover" from="grid_player1/grid_hp" to="." method="_on_grid_hp_gameover"]
 [connection signal="matched" from="grid_player2" to="." method="_on_grid_player2_matched"]
+[connection signal="gameover" from="grid_player2/grid_hp" to="." method="_on_grid_hp_gameover"]

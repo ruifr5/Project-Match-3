@@ -18,8 +18,8 @@ func _exit_tree():
 		enemy_grid.get_node(\"grid_hp\").attack_position(enemy_grid.pixel_to_grid(parent_position))
 
 
-func exec(enemy_grid: MyGrid, origin: Vector2):
-	self.enemy_grid = enemy_grid
+func exec(_enemy_grid: MyGrid, origin: Vector2):
+	enemy_grid = _enemy_grid
 	
 #	get random non-burning piece
 	var piece = try_get_random_piece(enemy_grid)

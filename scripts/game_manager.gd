@@ -21,6 +21,7 @@ var powers = {
 	earth = preload("res://scenes/piece_powers/earth_power.tscn"),
 }
 
+var gameover = false
 
 func _init():
 	randomize()
@@ -86,3 +87,21 @@ func activate_powers(color, match_count, enemy_grid, origin):
 		for n in bonus_match_count:
 			var power = powers[color].instance()
 			power.exec(enemy_grid, origin)
+
+
+func pause():
+	get_tree().paused = true
+
+
+func unpause():
+	get_tree().paused = false
+
+
+func _on_grid_hp_gameover(loser_allegiance):
+	if !gameover:
+		gameover = true
+		pause()
+		$grid_player1.lock()
+		$grid_player2.lock()
+		$winner_label.text %= "Player 1" if loser_allegiance == Vector2.DOWN else "Player 2"
+		$winner_label.visible = true

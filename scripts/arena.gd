@@ -82,7 +82,7 @@ func make_2d_array(length):
 	return array
 
 
-# unit_info: 0-> grid_position_x, 1-> run_direction aka allegiance, 2-> color
+# unit_info: 0-> grid_position_x, 1-> run_direction (aka allegiance), 2-> color
 func try_to_spawn_next_unit():
 	for spawn_queue in spawn_queues[Vector2.UP] + spawn_queues[Vector2.DOWN]:
 		if spawn_queue.size():
@@ -105,13 +105,14 @@ func touch_input_debug():
 #		spawn_unit_debug(get_local_mouse_position(), Vector2.UP, "fire")
 	if Input.is_action_just_pressed("ui_touch_2"):
 #		debug
-		for x in 1:
+		for x in 6:
 #			spawn_unit_debug(get_local_mouse_position(), Vector2.DOWN, ["fire","fire","fire"][floor(rand_range(0,3))])
-			queue_spawn_unit(2, Vector2.DOWN, "fire")
-			queue_spawn_unit(1.5, Vector2.DOWN, "water")
-			queue_spawn_unit(3, Vector2.UP, "earth")
-			queue_spawn_unit(3.5, Vector2.UP, "water")
-#			queue_spawn_unit(0, Vector2.DOWN, ["fire","water","earth"][floor(rand_range(0,3))])
+#			queue_spawn_unit(2, Vector2.DOWN, "fire")
+#			queue_spawn_unit(1.5, Vector2.DOWN, "water")
+#			queue_spawn_unit(3, Vector2.UP, "earth")
+#			queue_spawn_unit(3.5, Vector2.UP, "water")
+			queue_spawn_unit(5, Vector2.DOWN, ["fire","water","earth"][floor(rand_range(0,3))])
+			queue_spawn_unit(2, Vector2.UP, ["fire","water","earth"][floor(rand_range(0,3))])
 
 
 func spawn_unit(grid_position_x, run_direction, color):

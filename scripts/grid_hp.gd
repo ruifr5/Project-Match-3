@@ -4,14 +4,15 @@ extends Node2D
 # IMPORTANT
 # must have a grid as parent
 
+export (int) var max_tile_hp = 3
+
 # parent settings
 onready var width = get_parent().width
 onready var height = get_parent().height
 onready var offset = get_parent().offset
-
-export (int) var max_tile_hp = 3
-
 onready var all_tiles = make_2d_array()
+
+signal gameover(loser_allegiance)
 
 var tiles = [
 	preload("res://scenes/grid_hp_tile/grid_hp_tile_light.tscn"),
@@ -42,20 +43,37 @@ func init_tile_positions():
 			all_tiles[x][y].position = parent_grid[x][y].position
 
 
-func attack_col(grid_position_x):
-#	grid_position_x += offset / 2
+func attack_col(grid_position_x, damage = 3):
 	for y in height:
 		var new_y = y if get_parent().should_mirror() else height-1 - y
 		var tile = all_tiles[grid_position_x][new_y]
 		if tile.hp > 0:
-			tile.damage(3)
+			tile.damage(damage)
 			break
+	check_gameover()
 
 
-func attack_position(grid_position):
-	all_tiles[grid_position.x][grid_position.y].damage(3)
+func attack_position(grid_position, damage = 3):
+	all_tiles[grid_position.x][grid_position.y].damage(damage)
+	check_gameover()
 
 
 func heal_positions(grid_positions: Array):
 	for gp in grid_positions:
 		all_tiles[gp.x][gp.y].heal(1)
+
+
+func is_a_column_dead() -> bool:
+	for x in width:
+		var count = 0
+		for y in height:
+			if all_tiles[x][y].destroyed:
+				count += 1
+		if count >= height:
+			return true
+	return false
+
+
+func check_gameover():
+	if is_a_column_dead():
+		emit_signal("gameover", get_parent().allegiance)

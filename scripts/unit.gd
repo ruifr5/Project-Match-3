@@ -38,19 +38,19 @@ func process_enemies():
 
 # if closest is a Result.TIE looks for a better outcome
 func get_closest_alive_enemy():
-	var prefered_enemy
-	var closest_enemy
+	var prefered
+	var closest
 	for enemy in enemies_near:
 		if enemy.state != State.DYING:
-			if !closest_enemy:
-				closest_enemy = enemy
+			if !closest:
+				closest = enemy
 			var fight_result = wins_vs(enemy)
 			if fight_result == Result.TIE:
 				continue
 			if fight_result == Result.WIN:
-				prefered_enemy = enemy
+				prefered = enemy
 			break
-	return prefered_enemy if prefered_enemy else closest_enemy
+	return prefered if prefered else closest
 
 
 func play_walk_animation():
@@ -111,6 +111,7 @@ func move_and_fight(dir: Vector2, speed: float):
 
 func die():
 	state = State.DYING
+	pause_mode = PAUSE_MODE_PROCESS
 	$AnimationPlayer.play("die")
 	yield($AnimationPlayer, "animation_finished")
 	queue_free()

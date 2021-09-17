@@ -704,3 +704,11 @@ func get_center_position(pieces: Array):
 			corrected_position.y += 1024 - (height * offset + 32)
 		sum += corrected_position
 	return sum / pieces.size()
+
+
+func lock():
+	locked = true
+
+
+func unlock():
+	locked = false
