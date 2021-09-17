@@ -1,3 +1,4 @@
+class_name GridHP
 extends Node2D
 
 # IMPORTANT
@@ -41,14 +42,18 @@ func init_tile_positions():
 			all_tiles[x][y].position = parent_grid[x][y].position
 
 
-func attack_col(position_x):
-	var grid_position_x = get_parent().pixel_to_grid(Vector2(offset / 2 + position_x, 0)).x
+func attack_col(grid_position_x):
+#	grid_position_x += offset / 2
 	for y in height:
 		var new_y = y if get_parent().should_mirror() else height-1 - y
 		var tile = all_tiles[grid_position_x][new_y]
 		if tile.hp > 0:
 			tile.damage(3)
 			break
+
+
+func attack_position(grid_position):
+	all_tiles[grid_position.x][grid_position.y].damage(3)
 
 
 func heal_positions(grid_positions: Array):

@@ -169,7 +169,7 @@ func move_unit(unit: KinematicBody2D, target: Vector2, move_type = MoveType.NORM
 	var speed = unit_speed * 10 if move_type == MoveType.CORRECTION else unit_speed
 	if unit.position.y < unit_half_size && direction.normalized() == Vector2.UP || unit.position.y > height - unit_half_size && direction.normalized() == Vector2.DOWN:
 #		reach enemy base
-		emit_signal("end_reached", unit.position.x, unit.allegiance)
+		emit_signal("end_reached", unit.position.x / offset, unit.allegiance)
 		remove_from_moving_units(unit)
 		unit.die()
 	else:

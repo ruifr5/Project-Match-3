@@ -12,13 +12,15 @@ var possible_pieces = [
 	preload("res://scenes/pieces/earth_piece.tscn"),
 	preload("res://scenes/pieces/fire_piece.tscn"),
 	preload("res://scenes/pieces/useless_piece.tscn"),
-	preload("res://scenes/pieces/yellow_piece.tscn"),	# placeholder
+#	preload("res://scenes/pieces/yellow_piece.tscn"),	# placeholder
 ]
 
 var powers = {
+	fire = preload("res://scenes/piece_powers/fire_power.tscn"),
 	water = preload("res://scenes/piece_powers/water_power.tscn"),
-	earth = preload("res://scenes/piece_powers/earth_power.tscn")
+	earth = preload("res://scenes/piece_powers/earth_power.tscn"),
 }
+
 
 func _init():
 	randomize()
@@ -70,11 +72,11 @@ func _on_grid_player2_matched(grid_positions, centered_position, color):
 	activate_powers(color, grid_positions.size(), $grid_player1, centered_position)
 
 
-func _on_arena_end_reached(position_x, allegiance):
+func _on_arena_end_reached(grid_position_x, allegiance):
 	if allegiance == Vector2.DOWN:
-		$grid_player1/grid_hp.attack_col(position_x)
+		$grid_player1/grid_hp.attack_col(grid_position_x)
 	else:
-		$grid_player2/grid_hp.attack_col(position_x)
+		$grid_player2/grid_hp.attack_col(grid_position_x)
 
 
 func activate_powers(color, match_count, enemy_grid, origin):
