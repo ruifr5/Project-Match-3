@@ -1,6 +1,7 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://scripts/grid.gd" type="Script" id=1]
+[ext_resource path="res://art/placeholders/background3d.png" type="Texture" id=2]
 [ext_resource path="res://scripts/fps.gd" type="Script" id=3]
 [ext_resource path="res://scripts/cover.gd" type="Script" id=4]
 [ext_resource path="res://scripts/game_manager.gd" type="Script" id=6]
@@ -11,6 +12,10 @@
 script = ExtResource( 6 )
 
 [node name="background" type="Node2D" parent="."]
+visible = false
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="background" type="TextureRect" parent="background"]
 margin_left = 1.05945
@@ -19,6 +24,20 @@ margin_bottom = 1024.0
 __meta__ = {
 "_edit_group_": true,
 "_edit_use_anchors_": false
+}
+
+[node name="background3d" type="Sprite" parent="background"]
+position = Vector2( 288, 192 )
+texture = ExtResource( 2 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="background3d2" type="Sprite" parent="background"]
+position = Vector2( 288, 832 )
+texture = ExtResource( 2 )
+__meta__ = {
+"_edit_lock_": true
 }
 
 [node name="grid_player1" type="Node2D" parent="."]
@@ -47,7 +66,8 @@ allegiance = Vector2( 0, 1 )
 [node name="cover" type="Node2D" parent="."]
 script = ExtResource( 4 )
 __meta__ = {
-"_edit_group_": true
+"_edit_group_": true,
+"_edit_lock_": true
 }
 color = Color( 0.176471, 0.176471, 0.176471, 1 )
 
@@ -112,5 +132,30 @@ position = Vector2( 32, 352 )
 width = 512
 height = 320
 grid_width = 8
+
+[node name="debug" type="Node2D" parent="."]
+visible = false
+
+[node name="a" type="Label" parent="debug"]
+margin_left = 36.5101
+margin_top = 625.436
+margin_right = 76.5101
+margin_bottom = 639.436
+rect_scale = Vector2( 1.5, 1.5 )
+text = "fps: 0"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="b" type="Label" parent="debug"]
+margin_left = 38.0975
+margin_top = 377.801
+margin_right = 78.0975
+margin_bottom = 391.801
+rect_scale = Vector2( 1.5, 1.5 )
+text = "fps: 0"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 [connection signal="matched" from="grid_player1" to="." method="_on_grid_player1_matched"]
 [connection signal="matched" from="grid_player2" to="." method="_on_grid_player2_matched"]

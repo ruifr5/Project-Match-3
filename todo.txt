@@ -1,8 +1,5 @@
 efeitos secundarios dos tiles
 	fire - dot num tile
-	water - freeze tile -> falta sprite
-	earth - inutilizar um tile
 2 novos tiles minimo, ideias:
 	dark - esconde tiles
-	inutil - nao faz nada, so ocupa espaço
 	???

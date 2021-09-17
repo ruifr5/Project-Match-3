@@ -11,6 +11,7 @@ var old_movement_distance
 var matched = false
 var highlighted = false
 var locked = false
+var new_color
 
 var inverted_texture_path
 
@@ -65,6 +66,8 @@ func update_color():
 		return
 	elif highlighted:
 		$SpriteScreenWrap.modulate = highlighted_modulate
+	elif new_color != null:
+		$SpriteScreenWrap.modulate = new_color
 	else:
 		$SpriteScreenWrap.modulate = default_modulate
 
@@ -77,12 +80,12 @@ func unlock():
 	locked = false
 
 
-func set_sprite_color(new_color: Color):
-	default_modulate = new_color
+func set_sprite_color(c: Color):
+	new_color = c
 
 
 func reset_sprite_color():
-	default_modulate = Color(1, 1, 1, 1)
+	new_color = null
 
 
 func set_sprite_texture(new_sprite_texture: Texture):
@@ -93,7 +96,7 @@ func get_sprite_texture():
 	return $SpriteScreenWrap.texture
 
 
-# todo: load nao é ideal para eficiencia
 func flip_v_texture():
 	if color:
-		set_sprite_texture(load(inverted_texture_path))
+		if ResourceLoader.exists(inverted_texture_path):
+			set_sprite_texture(load(inverted_texture_path))

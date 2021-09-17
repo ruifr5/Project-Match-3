@@ -1,3 +1,4 @@
+class_name GridHPTile
 extends Node2D
 
 

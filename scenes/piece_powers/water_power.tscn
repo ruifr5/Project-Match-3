@@ -15,7 +15,7 @@ func exec(enemy_grid: MyGrid, origin: Vector2):
 	
 #	freeze piece
 	piece.lock()
-	piece.set_sprite_color(Color.black)
+	piece.set_sprite_color(Color(0.3, 0.3, 0.8, 3))
 	
 #	wait timer
 	yield(get_tree().create_timer(3), \"timeout\")

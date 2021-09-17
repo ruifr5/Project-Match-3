@@ -12,7 +12,7 @@ var possible_pieces = [
 	preload("res://scenes/pieces/earth_piece.tscn"),
 	preload("res://scenes/pieces/fire_piece.tscn"),
 	preload("res://scenes/pieces/useless_piece.tscn"),
-#	preload("res://scenes/pieces/yellow_piece.tscn"),	# placeholder
+	preload("res://scenes/pieces/yellow_piece.tscn"),	# placeholder
 ]
 
 var powers = {
@@ -29,6 +29,11 @@ func _enter_tree():
 	$arena.possible_units = possible_units
 	$grid_player1.possible_pieces = possible_pieces
 	$grid_player2.possible_pieces = possible_pieces
+
+
+func _process(_delta):
+	$debug/a.text = str($grid_player1.piece_count_dict)
+	$debug/b.text = str($grid_player2.piece_count_dict)
 
 
 func _ready():

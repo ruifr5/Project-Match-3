@@ -10,6 +10,16 @@ config_version=4
 
 _global_script_classes=[ {
 "base": "Node2D",
+"class": "GridHP",
+"language": "GDScript",
+"path": "res://scripts/grid_hp.gd"
+}, {
+"base": "Node2D",
+"class": "GridHPTile",
+"language": "GDScript",
+"path": "res://scripts/grid_hp_tile.gd"
+}, {
+"base": "Node2D",
 "class": "MyGrid",
 "language": "GDScript",
 "path": "res://scripts/grid.gd"
@@ -30,6 +40,8 @@ _global_script_classes=[ {
 "path": "res://scripts/unit.gd"
 } ]
 _global_script_class_icons={
+"GridHP": "",
+"GridHPTile": "",
 "MyGrid": "",
 "Piece": "",
 "Power": "",

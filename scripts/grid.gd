@@ -130,7 +130,6 @@ func on_touch(event):
 				if !find_matches():
 					all_pieces = grid_backup
 				reset_pieces_pixel_position()
-				highlight_matches()
 
 
 func on_mouse_click():
@@ -154,10 +153,11 @@ func on_mouse_click():
 		highlight_matches()
 		
 ##	right click down
-#	if Input.is_action_just_pressed("ui_touch_2"):
+	if Input.is_action_just_pressed("ui_touch_2"):
+		controlling = false
+		reset_pieces_pixel_position()
 #		var touch_down_grid_position = pixel_to_grid(get_global_mouse_position())
 #		if is_in_grid(touch_down_grid_position):
-#			pass
 
 
 func init_piece_count_array():
