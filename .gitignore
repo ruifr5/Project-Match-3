@@ -8,3 +8,5 @@ export_presets.cfg
 .mono/
 
 art/Match 3 Assets/*
+
+*.apk
