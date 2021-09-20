@@ -6,7 +6,8 @@
 script/source = "extends Power
 
 var alpha_values = [0.3, 1]
-var enemy_grid: MyGrid
+var _target_grid: MyGrid
+var particle_color = Color.orangered
 
 func _ready():
 	start_alpha_tween()
@@ -15,17 +16,7 @@ func _ready():
 func _exit_tree():
 	if $lifetime.time_left > 0:
 		var parent_position = get_parent().position
-		enemy_grid.get_node(\"grid_hp\").attack_position(enemy_grid.pixel_to_grid(parent_position))
-
-
-func exec(_enemy_grid: MyGrid, origin: Vector2):
-	enemy_grid = _enemy_grid
-	
-#	get random non-burning piece
-	var piece = try_get_random_piece(enemy_grid)
-	piece.add_child(self)
-	
-	emit_particle_effect(origin, piece.position, Color.orangered)
+		_target_grid.get_node(\"grid_hp\").attack_position(_target_grid.pixel_to_grid(parent_position))
 
 
 func start_alpha_tween():
@@ -40,6 +31,30 @@ func _on_alpha_tween_tween_all_completed():
 
 func _on_lifetime_timeout():
 	queue_free()
+
+
+func exec(target_grid: MyGrid, origin: Vector2):
+	_target_grid = target_grid
+	
+#	get random non-burning piece
+	var piece = try_get_random_piece(target_grid)
+	piece.add_child(self)
+	
+	process_execute(piece, origin)
+	
+	return piece.position
+
+
+func exec_target(target_grid, origin, target):
+	_target_grid = target_grid
+	var piece = target_grid.get_piece(target_grid.pixel_to_grid(Vector2(target.x, target.y)))
+	piece.add_child(self)
+	
+	process_execute(piece, origin)
+
+
+func process_execute(piece, origin):
+	emit_particle_effect(origin, piece.position, particle_color)
 "
 
 [node name="fire_power" type="Node2D"]

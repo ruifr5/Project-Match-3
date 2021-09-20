@@ -24,6 +24,7 @@ var all_pieces
 var matched_pieces_vertical = []
 var matched_pieces_horizontal = []
 var disabled_positions: PoolVector2Array = [] # not used yet
+var insert_pieces_queue = []
 
 # count of how many of each piece there is, { color : count }
 var piece_count_dict =  {}
@@ -34,8 +35,13 @@ var touch_up: Vector2
 var touch_idx
 var controlling = false
 var locked = false
+var spawning_pieces = false
+#var ignore_drag = false
+var missing_pieces = false
 var movement_start_grid_position
 var old_movement_direction
+
+var mouse_event_queue = []
 
 enum MovementType {INSTANT, ANIMATED}
 
@@ -51,39 +57,133 @@ func _enter_tree():
 	all_pieces = make_2d_array()
 	spawn_pieces(MovementType.INSTANT)
 
-func _input(event):
-	on_drag(event)
+
+remote func _input(event):
+	if get_tree().has_network_peer() and not is_network_master():
+		return
 	
-	if !locked:
-		on_mouse_click()
-		on_touch(event)
+	on_mouse_click(event)
+	on_drag(event)
+#	on_touch(event)
 
 
 func _process(_delta):
+	$Label.text = "Locked: " + str(locked)
 	if controlling:
 		highlight_matches()
 	else:
 		clear_highlighted()
+	if !controlling and !locked and !spawning_pieces:
+		insert_next_pending_pieces()
+	if !locked and !spawning_pieces and !missing_pieces:
+		run_next_mouse_input_in_queue()
+
+
+func run_next_mouse_input_in_queue():
+	if mouse_event_queue.size() > 0:
+		var event = mouse_event_queue.pop_front()
+		call(event[0], event[1])
 
 
 func should_mirror():
 	return allegiance == Vector2.DOWN
 
 
-func on_drag(event):
-	if (event is InputEventMouseMotion or event is InputEventScreenDrag) && controlling:
-		var drag_position
-		if event is InputEventMouseMotion:
-			drag_position = get_global_mouse_position()
-		elif event is InputEventScreenDrag and touch_idx == event.index:
-			drag_position = event.position
-		
-		var	new_direction = clamp_movement_distance(zero_smallest_dimention(drag_position - touch_down))
+remote func on_drag(event, rpc = false):
+	if rpc:
+		event = bytes2var(event, true)
+#	if ignore_drag:
+#		return
+	if locked:
+		if rpc:
+			mouse_event_queue.append(["on_drag", event])
+		return
+	if get_tree().has_network_peer() and is_network_master():
+		rpc_id(Network.enemy_info.id, "on_drag", var2bytes(event, true), true)
+	if (event is InputEventMouseMotion or event is InputEventScreenDrag and touch_idx == event.index) && controlling:
+		var	new_direction = clamp_movement_distance(zero_smallest_dimention(event.position - touch_down))
 		reset_old_moving_pieces_if_movement_changed_axis(new_direction)
 		new_direction = clamp_if_locked(new_direction)
 		
 		move_pieces(new_direction)
 		old_movement_direction = new_direction
+
+
+remote func on_touch(event, rpc = false):
+	if rpc:
+		event = bytes2var(event, true)
+	if get_tree().has_network_peer() and is_network_master():
+		rpc_id(Network.enemy_info.id, "on_touch", var2bytes(event, true), true)
+
+	if event is InputEventScreenTouch:
+#			touch down
+			if event.pressed:
+				var temp_touch_down = event.position
+				var touch_down_grid_position = pixel_to_grid(temp_touch_down)
+				if is_in_grid(touch_down_grid_position) and !touch_idx:
+					touch_down = temp_touch_down
+					touch_idx = event.index
+					controlling = true
+					movement_start_grid_position = touch_down_grid_position
+#			touch up
+			else:
+				touch_idx = null
+				controlling = false
+				var grid_backup = all_pieces.duplicate(true)
+				all_pieces = get_array_pixel_position_converted_to_grid_position()
+		#		reset positions if there was no match
+				if !find_matches():
+					all_pieces = grid_backup
+				reset_pieces_pixel_position()
+
+
+remote func on_mouse_click(event, rpc = false):
+	if rpc:
+		event = bytes2var(event, true)
+	if locked:
+		if rpc:
+			mouse_event_queue.append(["on_mouse_click", event])
+		return
+	if get_tree().has_network_peer() and is_network_master():
+		rpc_id(Network.enemy_info.id, "on_mouse_click", var2bytes(event, true), true)
+		
+#	left click down
+	if event.is_action_pressed("ui_touch"):
+		touch_down = event.position
+		var touch_down_grid_position = pixel_to_grid(touch_down)
+		if is_in_grid(touch_down_grid_position):
+			controlling = true
+			movement_start_grid_position = touch_down_grid_position
+		
+#	left click up
+	if event.is_action_released("ui_touch") && controlling:
+		controlling = false
+		if get_tree().has_network_peer() and !is_network_master():
+#			ignore_drag = true
+			var animation_time = 0
+			var	new_direction = clamp_movement_distance(zero_smallest_dimention(event.position - touch_down))
+			reset_old_moving_pieces_if_movement_changed_axis(new_direction)
+			new_direction = clamp_if_locked(new_direction)
+			
+			move_pieces(new_direction, animation_time)
+			old_movement_direction = new_direction
+			
+#			yield(get_tree().create_timer(animation_time), "timeout")
+#			ignore_drag = false
+		
+		
+		var grid_backup = all_pieces.duplicate(true)
+		all_pieces = get_array_pixel_position_converted_to_grid_position()
+#		reset positions if there was no match
+		if !find_matches():
+			all_pieces = grid_backup
+		reset_pieces_pixel_position()
+		highlight_matches()
+		
+#	right click down
+	if event.is_action_pressed("ui_touch_2"):
+		reset_pieces_pixel_position()
+		controlling = false
 
 
 func clamp_if_locked(direction):
@@ -109,60 +209,9 @@ func reset_old_moving_pieces_if_movement_changed_axis(direction):
 			reset_row_pixel_position(movement_start_grid_position.y)
 
 
-func on_touch(event):
-	if event is InputEventScreenTouch:
-#			touch down
-			if event.pressed:
-				var temp_touch_down = event.position
-				var touch_down_grid_position = pixel_to_grid(temp_touch_down)
-				if is_in_grid(touch_down_grid_position) && !touch_idx:
-					touch_down = temp_touch_down
-					touch_idx = event.index
-					controlling = true
-					movement_start_grid_position = touch_down_grid_position
-#			touch up
-			else:
-				touch_idx = null
-				controlling = false
-				var grid_backup = all_pieces.duplicate(true)
-				all_pieces = get_array_pixel_position_converted_to_grid_position()
-		#		reset positions if there was no match
-				if !find_matches():
-					all_pieces = grid_backup
-				reset_pieces_pixel_position()
-
-
-func on_mouse_click():
-#	left click down
-	if Input.is_action_just_pressed("ui_touch"):
-		touch_down = get_global_mouse_position()
-		var touch_down_grid_position = pixel_to_grid(touch_down)
-		if is_in_grid(touch_down_grid_position):
-			controlling = true
-			movement_start_grid_position = touch_down_grid_position
-		
-#	left click up
-	if Input.is_action_just_released("ui_touch") && controlling:
-		controlling = false
-		var grid_backup = all_pieces.duplicate(true)
-		all_pieces = get_array_pixel_position_converted_to_grid_position()
-#		reset positions if there was no match
-		if !find_matches():
-			all_pieces = grid_backup
-		reset_pieces_pixel_position()
-		highlight_matches()
-		
-##	right click down
-	if Input.is_action_just_pressed("ui_touch_2"):
-		controlling = false
-		reset_pieces_pixel_position()
-#		var touch_down_grid_position = pixel_to_grid(get_global_mouse_position())
-#		if is_in_grid(touch_down_grid_position):
-
-
 func init_piece_count_array():
 	for type in possible_pieces:
-		var piece = type.instance()
+		var piece = possible_pieces[type].instance()
 		piece_count_dict[piece.color] = 0
 		piece.queue_free()
 
@@ -204,7 +253,6 @@ func highlight_matches():
 							down_piece.highlighted = true
 
 
-
 func make_2d_array():
 	var array = []
 	for x in width:
@@ -227,26 +275,31 @@ func get_lowest_count_piece_idx():
 
 
 func spawn_pieces(move_type = MovementType.ANIMATED):
+	if get_tree().has_network_peer() and !is_network_master() and move_type == MovementType.ANIMATED:
+		missing_pieces = true
+		locked = false
+		return
+	spawning_pieces = true
+	var new_pieces_data = []
 	for x in width:
 		var empty_slots_above = 0
 		var spawn_offset = 0
 		for y in height:
 			if !all_pieces[x][y]:
-				var thread = Thread.new()
-	#			choose a random number and store it
-				var rand = floor(rand_range(0, possible_pieces.size()))
-	#			instanciate that piece from the array
-				var piece: Piece = possible_pieces[rand].instance()
+	#			instance a random piece
+				var piece: Piece = possible_pieces[get_random_color()].instance()
 	#			remove starting matches
 				var new_piece_id = get_lowest_count_piece_idx()
 				var count = 0
 				while match_at(x, y, piece.color) && count < possible_pieces.size():
-					piece = possible_pieces[new_piece_id].instance()
+					piece = possible_pieces[get_color_at(new_piece_id)].instance()
 					new_piece_id = 0 if new_piece_id + 1 >= possible_pieces.size() else new_piece_id + 1
 					count += 1
-	#			set position and save piece to array
-				if should_mirror():
-	#				count empty slots above to determine the spawn offset for each piece
+				# set position
+				if move_type == MovementType.INSTANT:
+					piece.position = grid_to_pixel(Vector2(x,y))
+				elif should_mirror():
+					# count empty slots above to determine the spawn offset for each piece
 					if empty_slots_above == 0 && y < height - 1:
 						for k in range(y, height):
 							if !all_pieces[x][k]:
@@ -258,25 +311,114 @@ func spawn_pieces(move_type = MovementType.ANIMATED):
 				else:
 					piece.position = grid_to_pixel(Vector2(x, height + spawn_offset))
 				spawn_offset += 1
+				# add to count
+				piece_count_dict[piece.color] += 1
+				# process piece instance
 				add_child(piece)
 				all_pieces[x][y] = piece
-				piece_count_dict[piece.color] += 1
-				var sprite_screen_wrap = piece.get_node("SpriteScreenWrap")
-	#			set wrap area information
-				sprite_screen_wrap.wrapArea = wrap_area
+				new_pieces_data.append({
+					x = x,
+					y = y,
+					piece = piece.serialize()
+				})
+				# flip texture if necessary
 				if should_mirror():
 					piece.flip_v_texture()
-				if move_type == MovementType.INSTANT:
-					piece.position = grid_to_pixel(Vector2(x,y))
-				else:
-	#				disable vertical wrap arround to remove noise from animation
+				# set wrap area information
+				var sprite_screen_wrap = piece.get_node("SpriteScreenWrap")
+				sprite_screen_wrap.wrapArea = wrap_area
+				# move to position
+				if move_type == MovementType.ANIMATED:
+					# disable vertical wrap arround to remove noise from animation
 					sprite_screen_wrap.setVerticalWrap(false)
-	#				animate movement
+					# animate movement
 					piece.move(grid_to_pixel(Vector2(x,y)), collapse_seconds)#, Tween.TRANS_EXPO, Tween.EASE_IN_OUT)
-	#				re-enable vertical wrap arround after movement ends
+					# re-enable vertical wrap arround after movement ends
+					var thread = Thread.new()
 					thread.start(sprite_screen_wrap, "enableVerticalWrapAfterDelay", collapse_seconds)
 					thread.wait_to_finish()
-	
+	if get_tree().has_network_peer() and move_type == MovementType.ANIMATED:
+		rpc_id(Network.enemy_info.id, "queue_insert_pieces", new_pieces_data)
+	#	wait for pieces to finish falling
+	yield(get_tree().create_timer(collapse_seconds), "timeout")
+	find_matches()
+	spawning_pieces = false
+
+
+remote func queue_insert_pieces(new_pieces_data):
+	insert_pieces_queue.append(new_pieces_data)
+
+
+func insert_next_pending_pieces():
+	if insert_pieces_queue.size() <= 0:
+		return
+	spawning_pieces = true
+	var spawn_offset_list = []
+	var empty_slots_above_list = []
+	# init lists
+	for x in width:
+		spawn_offset_list.append(0)
+		empty_slots_above_list.append(0)
+	# process pieces
+	var new_pieces_data = insert_pieces_queue.pop_front()
+	for data in new_pieces_data:
+		if all_pieces[data.x][data.y]:
+			printerr("piece failed to insert: syncronization failed somewhere causing pieces to be in wrong positions")
+#			insert_pieces_queue.push_front(new_pieces_data)
+			return
+		else:
+			var piece = possible_pieces[data.piece.color].instance()
+			# set starting position
+			if should_mirror():
+				# count empty slots above to determine the spawn offset for each piece
+				if empty_slots_above_list[data.x] == 0 && data.y < height - 1:
+					for k in range(data.y, height):
+						if !all_pieces[data.x][k]:
+							empty_slots_above_list[data.x] += 1
+						else:
+							break
+				piece.position = grid_to_pixel(Vector2(data.x, -empty_slots_above_list[data.x]))
+				empty_slots_above_list[data.x] -= 1
+			else:
+				piece.position = grid_to_pixel(Vector2(data.x, height + spawn_offset_list[data.x]))
+			spawn_offset_list[data.x] += 1
+			# add to count
+			piece_count_dict[piece.color] += 1
+			# process piece instance
+			all_pieces[data.x][data.y] = piece
+			add_child(piece)
+			# flip texture if necessary
+			if should_mirror():
+				piece.flip_v_texture()
+	#		disable vertical wrap arround to remove noise from animation
+			var sprite_screen_wrap = all_pieces[data.x][data.y].get_node("SpriteScreenWrap")
+			sprite_screen_wrap.wrapArea = wrap_area
+			sprite_screen_wrap.setVerticalWrap(false)
+	#		animate movement
+			piece.move(grid_to_pixel(Vector2(data.x ,data. y)), collapse_seconds)#, Tween.TRANS_EXPO, Tween.EASE_IN_OUT)
+	#		re-enable vertical wrap arround after movement ends
+			var thread = Thread.new()
+			thread.start(sprite_screen_wrap, "enableVerticalWrapAfterDelay", collapse_seconds)
+			thread.wait_to_finish()
+	missing_pieces = false
+#	wait for pieces to finish falling
+	yield(get_tree().create_timer(collapse_seconds), "timeout")
+	find_matches()
+	spawning_pieces = false
+
+
+func config_screen_wrap(piece):
+	piece.get_node("SpriteScreenWrap").wrapArea = wrap_area
+
+
+func get_random_color() -> String:
+	var rand = floor(rand_range(0, possible_pieces.size()))
+	return possible_pieces.keys()[rand]
+
+
+func get_color_at(idx) -> String:
+	return possible_pieces.keys()[idx]
+
 
 func match_at(x, y, color):
 	if x > 1:
@@ -440,16 +582,17 @@ func is_in_grid(grid_position):
 	return false
 
 
-func move_pieces(direction):
+func move_pieces(direction, animation_time = 0.5):
 	direction = zero_smallest_dimention(direction)
 	if abs(direction.x) > 0:
 		for column in all_pieces:
-			if column[movement_start_grid_position.y]:
-				column[movement_start_grid_position.y].move_as_group(direction)
+			var piece = column[movement_start_grid_position.y]
+			if piece:
+					piece.move_as_group(direction, animation_time)
 	elif abs(direction.y) > 0:
-		for row in all_pieces[movement_start_grid_position.x]:
-			if row:
-				row.move_as_group(direction)
+		for piece in all_pieces[movement_start_grid_position.x]:
+			if piece:
+					piece.move_as_group(direction, animation_time)
 
 
 func get_array_pixel_position_converted_to_grid_position():
@@ -586,9 +729,6 @@ func refill_grid():
 #	wait before starting
 	yield(get_tree().create_timer(refill_timer), "timeout")
 	spawn_pieces()
-#	wait for pieces to finish falling
-	yield(get_tree().create_timer(collapse_seconds), "timeout")
-	find_matches()
 
 
 func lock_grid_position(grid_position: Vector2):
@@ -627,7 +767,7 @@ func is_vertical_locked(grid_position: Vector2) -> bool:
 	return false
 
 
-func get_piece(grid_position) -> Piece:
+func get_piece(grid_position: Vector2) -> Piece:
 	return all_pieces[grid_position.x][grid_position.y]
 
 
@@ -712,3 +852,61 @@ func lock():
 
 func unlock():
 	locked = false
+
+
+func serialize_grid() -> Array:
+	var grid = make_2d_array()
+	for x in width:
+		for y in height:
+			grid[x][y] = all_pieces[x][y].serialize()
+	return grid
+
+
+func unserialize_grid(grid) -> Array:
+	for x in width:
+		for y in height:
+			if grid[x][y]:
+				grid[x][y] = possible_pieces[grid[x][y].color].instance()
+	return grid
+
+
+func serialize() -> Dictionary:
+	var obj = {
+		all_pieces = serialize_grid(),
+	}
+	return obj
+
+
+func unserialize(serialized) -> Dictionary:
+	var obj = {
+		all_pieces = unserialize_grid(serialized["all_pieces"]),
+	}
+	return obj
+
+
+func load_data(data, serialized = false):
+	if serialized:
+		data = unserialize(data)
+	queue_free_2d_array(all_pieces)
+	for key in data:
+		self[key] = data[key]
+	reset_pieces_pixel_position()
+	add_all_pieces_to_parent()
+
+
+func queue_free_2d_array(arr):
+	for x in width:
+		for y in height:
+			if arr[x][y]:
+				arr[x][y].queue_free()
+
+
+func add_all_pieces_to_parent():
+	for x in width:
+		for y in height:
+			var piece = all_pieces[x][y]
+			if not piece.is_inside_tree():
+				add_child(piece)
+				config_screen_wrap(piece)
+				if should_mirror():
+					piece.flip_v_texture()

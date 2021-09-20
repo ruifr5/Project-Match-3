@@ -5,13 +5,26 @@
 [sub_resource type="GDScript" id=1]
 script/source = "extends Power
 
+var particle_color = Color.aqua
 
-func exec(enemy_grid: MyGrid, origin: Vector2):
+func exec(target_grid: MyGrid, origin: Vector2):
 #	get random non-frozen piece
-	var piece = try_get_random_piece(enemy_grid)
+	var piece = try_get_random_piece(target_grid)
 	piece.add_child(self)
 	
-	emit_particle_effect(origin, piece.position, Color.aqua)
+	process_execute(piece, origin)
+	
+	return piece.position
+
+
+func exec_target(target_grid, origin, target):
+	var piece = target_grid.get_piece(target_grid.pixel_to_grid(Vector2(target.x, target.y)))
+	piece.add_child(self)
+	process_execute(piece, origin)
+
+
+func process_execute(piece, origin):
+	emit_particle_effect(origin, piece.position, particle_color)
 	
 #	freeze piece
 	piece.lock()
@@ -25,7 +38,6 @@ func exec(enemy_grid: MyGrid, origin: Vector2):
 	piece.reset_sprite_color()
 	
 	queue_free()
-
 "
 
 [node name="water_power" type="Node2D"]

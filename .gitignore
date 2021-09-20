@@ -10,3 +10,5 @@ export_presets.cfg
 art/Match 3 Assets/*
 
 *.apk
+
+launch.bat

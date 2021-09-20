@@ -9,6 +9,11 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "Node",
+"class": "GameWindow",
+"language": "GDScript",
+"path": "res://scripts/game_manager.gd"
+}, {
 "base": "Node2D",
 "class": "GridHP",
 "language": "GDScript",
@@ -40,6 +45,7 @@ _global_script_classes=[ {
 "path": "res://scripts/unit.gd"
 } ]
 _global_script_class_icons={
+"GameWindow": "",
 "GridHP": "",
 "GridHPTile": "",
 "MyGrid": "",
@@ -51,8 +57,13 @@ _global_script_class_icons={
 [application]
 
 config/name="Project Match 3 PvP"
-run/main_scene="res://scenes/game_window.tscn"
+run/main_scene="res://scenes/home_window.tscn"
 config/icon="res://icon.png"
+config/quit_on_go_back=false
+
+[autoload]
+
+Network="*res://scripts/network.gd"
 
 [display]
 

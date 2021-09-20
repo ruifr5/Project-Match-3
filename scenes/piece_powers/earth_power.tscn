@@ -7,12 +7,27 @@ script/source = "extends Power
 
 export (String) var new_piece_color = \"useless\"
 
-func exec(enemy_grid: MyGrid, origin: Vector2):
+var particle_color = Color.green
+
+
+func exec(target_grid: MyGrid, origin: Vector2):
 #	get random non-frozen piece
-	var piece = try_get_random_piece(enemy_grid, new_piece_color)
+	var piece = try_get_random_piece(target_grid, new_piece_color)
 	piece.add_child(self)
 	
-	var particle_time = emit_particle_effect(origin, piece.position, Color.green)
+	process_execute(piece, origin)
+	
+	return piece.position
+
+
+func exec_target(target_grid, origin, target):
+	var piece = target_grid.get_piece(target_grid.pixel_to_grid(Vector2(target.x, target.y)))
+	piece.add_child(self)
+	process_execute(piece, origin)
+
+
+func process_execute(piece, origin):
+	var particle_time = emit_particle_effect(origin, piece.position, particle_color)
 	
 ##	store old piece info
 #	var backup_color = piece.color

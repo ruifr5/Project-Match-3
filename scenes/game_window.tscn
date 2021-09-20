@@ -1,12 +1,27 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://scripts/grid.gd" type="Script" id=1]
 [ext_resource path="res://art/placeholders/background3d.png" type="Texture" id=2]
 [ext_resource path="res://scripts/fps.gd" type="Script" id=3]
 [ext_resource path="res://scripts/cover.gd" type="Script" id=4]
+[ext_resource path="res://art/fonts/GravityBold8.ttf" type="DynamicFontData" id=5]
 [ext_resource path="res://scripts/game_manager.gd" type="Script" id=6]
 [ext_resource path="res://scenes/grid_hp.tscn" type="PackedScene" id=7]
 [ext_resource path="res://scenes/arena.tscn" type="PackedScene" id=8]
+[ext_resource path="res://art/theme.png" type="Texture" id=9]
+[ext_resource path="res://art/fonts/monogram-extended.ttf" type="DynamicFontData" id=10]
+
+[sub_resource type="DynamicFont" id=1]
+size = 35
+font_data = ExtResource( 10 )
+
+[sub_resource type="DynamicFont" id=2]
+size = 45
+font_data = ExtResource( 5 )
+
+[sub_resource type="DynamicFont" id=3]
+size = 29
+font_data = ExtResource( 5 )
 
 [node name="game_window" type="Node2D"]
 script = ExtResource( 6 )
@@ -21,12 +36,14 @@ __meta__ = {
 margin_left = 1.05945
 margin_right = 577.059
 margin_bottom = 1024.0
+texture = ExtResource( 9 )
 __meta__ = {
 "_edit_group_": true,
 "_edit_use_anchors_": false
 }
 
 [node name="background3d" type="Sprite" parent="background"]
+visible = false
 position = Vector2( 288, 192 )
 texture = ExtResource( 2 )
 __meta__ = {
@@ -34,6 +51,7 @@ __meta__ = {
 }
 
 [node name="background3d2" type="Sprite" parent="background"]
+visible = false
 position = Vector2( 288, 832 )
 texture = ExtResource( 2 )
 __meta__ = {
@@ -50,6 +68,18 @@ offset = 64
 wrap_area = Rect2( 32, 672, 512, 320 )
 
 [node name="grid_hp" parent="grid_player1" instance=ExtResource( 7 )]
+z_index = 0
+
+[node name="Label" type="Label" parent="grid_player1"]
+margin_left = 19.0487
+margin_top = 438.122
+margin_right = 61.0487
+margin_bottom = 452.122
+rect_scale = Vector2( 2, 2 )
+text = "locked"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="grid_player2" type="Node2D" parent="."]
 script = ExtResource( 1 )
@@ -62,8 +92,21 @@ wrap_area = Rect2( 32, 32, 512, 320 )
 allegiance = Vector2( 0, 1 )
 
 [node name="grid_hp" parent="grid_player2" instance=ExtResource( 7 )]
+z_index = 0
+
+[node name="Label" type="Label" parent="grid_player2"]
+margin_left = 15.874
+margin_top = 4.76221
+margin_right = 57.874
+margin_bottom = 18.7622
+rect_scale = Vector2( 2, 2 )
+text = "locked"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="cover" type="Node2D" parent="."]
+visible = false
 script = ExtResource( 4 )
 __meta__ = {
 "_edit_group_": true,
@@ -121,7 +164,7 @@ __meta__ = {
 visible = false
 margin_right = 40.0
 margin_bottom = 14.0
-rect_scale = Vector2( 2, 2 )
+custom_fonts/font = SubResource( 1 )
 text = "fps: 0"
 script = ExtResource( 3 )
 __meta__ = {
@@ -159,14 +202,135 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="winner_label" type="Label" parent="."]
+[node name="gameover_layer" type="CanvasLayer" parent="."]
+
+[node name="Control" type="Control" parent="gameover_layer"]
 visible = false
-margin_right = 192.0
-margin_bottom = 341.0
-rect_scale = Vector2( 3, 3 )
-text = "%s wins!"
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_lock_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="winner_label" type="Label" parent="gameover_layer/Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_vertical = 1
+custom_fonts/font = SubResource( 2 )
+text = "%s wins! "
 align = 1
 valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ColorRect" type="ColorRect" parent="gameover_layer/Control/winner_label"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 480.0
+margin_bottom = -480.0
+color = Color( 0, 0, 0, 0.137255 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="exit_button" type="Button" parent="gameover_layer/Control"]
+pause_mode = 2
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+margin_left = 200.0
+margin_top = 62.0
+margin_right = -200.0
+margin_bottom = 86.0
+grow_horizontal = 2
+custom_fonts/font = SubResource( 3 )
+text = "exit"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="menu_layer" type="CanvasLayer" parent="."]
+
+[node name="Control" type="Control" parent="menu_layer"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_lock_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="ColorRect" type="ColorRect" parent="menu_layer/Control"]
+margin_top = 390.0
+margin_right = 576.0
+margin_bottom = 634.0
+color = Color( 0, 0, 0, 0.137255 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MarginContainer" type="MarginContainer" parent="menu_layer/Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+custom_constants/margin_right = 100
+custom_constants/margin_top = 390
+custom_constants/margin_left = 100
+custom_constants/margin_bottom = 390
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="menu_layer/Control/MarginContainer"]
+margin_left = 100.0
+margin_top = 390.0
+margin_right = 476.0
+margin_bottom = 634.0
+custom_constants/separation = 10
+alignment = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MarginContainer" type="MarginContainer" parent="menu_layer/Control/MarginContainer/VBoxContainer"]
+margin_top = 41.0
+margin_right = 376.0
+margin_bottom = 113.0
+custom_constants/margin_bottom = 27
+
+[node name="menu_label" type="Label" parent="menu_layer/Control/MarginContainer/VBoxContainer/MarginContainer"]
+margin_right = 376.0
+margin_bottom = 45.0
+size_flags_vertical = 1
+custom_fonts/font = SubResource( 2 )
+text = "Menu"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="continue_button" type="Button" parent="menu_layer/Control/MarginContainer/VBoxContainer"]
+pause_mode = 2
+margin_top = 123.0
+margin_right = 376.0
+margin_bottom = 158.0
+grow_horizontal = 2
+custom_fonts/font = SubResource( 3 )
+text = "continue"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="exit_button" type="Button" parent="menu_layer/Control/MarginContainer/VBoxContainer"]
+pause_mode = 2
+margin_top = 168.0
+margin_right = 376.0
+margin_bottom = 203.0
+grow_horizontal = 2
+custom_fonts/font = SubResource( 3 )
+text = "exit"
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -174,3 +338,6 @@ __meta__ = {
 [connection signal="gameover" from="grid_player1/grid_hp" to="." method="_on_grid_hp_gameover"]
 [connection signal="matched" from="grid_player2" to="." method="_on_grid_player2_matched"]
 [connection signal="gameover" from="grid_player2/grid_hp" to="." method="_on_grid_hp_gameover"]
+[connection signal="pressed" from="gameover_layer/Control/exit_button" to="." method="_on_exit_button_pressed"]
+[connection signal="pressed" from="menu_layer/Control/MarginContainer/VBoxContainer/continue_button" to="." method="_on_continue_button_pressed"]
+[connection signal="pressed" from="menu_layer/Control/MarginContainer/VBoxContainer/exit_button" to="." method="_on_exit_button_pressed"]

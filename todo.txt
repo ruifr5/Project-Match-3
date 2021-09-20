@@ -1,5 +1,6 @@
-efeitos secundarios dos tiles
-	fire - dot num tile
 2 novos tiles minimo, ideias:
 	dark - esconde tiles
 	???
+
+networking
+	serializaçao e deserializaçao de grid

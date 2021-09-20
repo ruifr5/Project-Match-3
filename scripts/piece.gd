@@ -25,7 +25,7 @@ func _process(_delta):
 	update_color()
 
 
-func move_as_group(difference, duration = .5, trans_type = Tween.TRANS_EXPO, ease_type = Tween.EASE_OUT):
+func move_as_group(difference, duration = .5, trans_type = Tween.TRANS_CIRC, ease_type = Tween.EASE_OUT):
 	if !movement_start_position:
 		movement_start_position = position
 		
@@ -33,10 +33,9 @@ func move_as_group(difference, duration = .5, trans_type = Tween.TRANS_EXPO, eas
 	reset_mirrors_if_passed_origin(difference)
 
 
-func move(target, duration = .5, trans_type = Tween.TRANS_EXPO, ease_type = Tween.EASE_OUT):
+func move(target, duration = .5, trans_type = Tween.TRANS_CIRC, ease_type = Tween.EASE_OUT):
 	$move_tween.interpolate_property(self, "position", position, target, duration, trans_type, ease_type)
 	$move_tween.start()
-	pass
 
 
 func reset_mirrors_if_passed_origin(new_movement_distance):
@@ -100,3 +99,9 @@ func flip_v_texture():
 	if color:
 		if ResourceLoader.exists(inverted_texture_path):
 			set_sprite_texture(load(inverted_texture_path))
+
+
+func serialize():
+	return {
+		color = color
+	}
