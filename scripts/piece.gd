@@ -25,7 +25,7 @@ func _process(_delta):
 	update_color()
 
 
-func move_as_group(difference, duration = .5, trans_type = Tween.TRANS_CIRC, ease_type = Tween.EASE_OUT):
+func move_as_group(difference, duration = .5, trans_type = Tween.TRANS_EXPO, ease_type = Tween.EASE_OUT):
 	if !movement_start_position:
 		movement_start_position = position
 		
@@ -33,9 +33,13 @@ func move_as_group(difference, duration = .5, trans_type = Tween.TRANS_CIRC, eas
 	reset_mirrors_if_passed_origin(difference)
 
 
-func move(target, duration = .5, trans_type = Tween.TRANS_CIRC, ease_type = Tween.EASE_OUT):
-	$move_tween.interpolate_property(self, "position", position, target, duration, trans_type, ease_type)
-	$move_tween.start()
+func move(target, duration = .5, trans_type = Tween.TRANS_EXPO, ease_type = Tween.EASE_OUT):
+	if duration == 0:
+		stop_movement()
+		position = target
+	else:
+		$move_tween.interpolate_property(self, "position", position, target, duration, trans_type, ease_type)
+		$move_tween.start()
 
 
 func reset_mirrors_if_passed_origin(new_movement_distance):

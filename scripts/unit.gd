@@ -61,6 +61,7 @@ func play_walk_animation():
 
 
 func sort_closest(a, b):
+#	return abs(a.position.x - self.position.x) < abs(b.position.x - self.position.x)
 	return a.position.distance_to(self.position) < b.position.distance_to(self.position)
 
 
@@ -111,6 +112,7 @@ func move_and_fight(dir: Vector2, speed: float):
 
 func die():
 	state = State.DYING
+	$CollisionShape2D.disabled = true
 	pause_mode = PAUSE_MODE_PROCESS
 	$AnimationPlayer.play("die")
 	yield($AnimationPlayer, "animation_finished")

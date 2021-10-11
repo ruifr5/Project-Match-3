@@ -1,6 +1,20 @@
-2 novos tiles minimo, ideias:
+novos tiles, ideias:
 	dark - esconde tiles
 	???
 
 networking
-	serializaçao e deserializaçao de grid
+	transmit moves only, move animation after receiving moves
+	sync units in arena
+	confirm power sync
+
+create ui folder for canvas layers
+new home screen for multiple gamemodes
+keep current gamemode and add new slower base gamemode (turn based?)
+
+normal mode
+	mana (tipo clash royale)
+
+survival mode
+	enemy comes in waves
+	what enemies? zombies? same as player units?
+	

@@ -1,10 +1,19 @@
 extends Node
 
-const SERVER_PORT = 31400
-
+var server_port = 31400
 var upnp: UPNP
+var thread = Thread.new()
+var ip_url = "https://api.ipify.org"
+
 var game_window: GameWindow
 var players_done = 0
+
+
+# Player info, associate ID to data
+var enemy_info = { id = null, name = null}
+# Info we send to other players
+var my_info = { name = null }
+
 
 func _ready():
 #	 Connect all functions
@@ -13,11 +22,14 @@ func _ready():
 	get_tree().connect("connected_to_server", self, "_connected_ok")
 	get_tree().connect("connection_failed", self, "_connected_fail")
 	get_tree().connect("server_disconnected", self, "_server_disconnected")
-	
-# Player info, associate ID to data
-var enemy_info = { id = null, name = null}
-# Info we send to other players
-var my_info = { name = null }
+	var http_request = HTTPRequest.new()
+	http_request.name = "http_request"
+	add_child(http_request)
+
+
+func _exit_tree():
+	if upnp and upnp.get_device_count() > 0:
+		upnp.delete_port_mapping(server_port)
 
 
 func _player_connected(id):
@@ -65,17 +77,30 @@ remotesync func done_register():
 		players_done = 0
 		pre_configure_game_serverside()
 
+
 func create_server(user_name):
 	my_info.name = user_name
 	var peer = NetworkedMultiplayerENet.new()
-	peer.create_server(SERVER_PORT, 1)
+	peer.create_server(int(user_name), 1)
 	get_tree().set_network_peer(peer)
+	thread.start(self, "upnp_open_port", null)
+
+
+func upnp_open_port(a):
+	upnp = UPNP.new()
+	var result = upnp.discover()
+	if upnp.get_device_count() > 0:
+		upnp.add_port_mapping(int(server_port))
+	print("discover response: ", result)
+#	var my_ipv4 = upnp.query_external_address()
 
 
 func connect_to_server(server_ip, user_name):
+	if server_ip == "":
+		server_ip = "127.0.0.1"
 	my_info.name = user_name
 	var peer = NetworkedMultiplayerENet.new()
-	peer.create_client(server_ip, SERVER_PORT)
+	peer.create_client(server_ip, int(user_name))
 	get_tree().network_peer = peer
 
 

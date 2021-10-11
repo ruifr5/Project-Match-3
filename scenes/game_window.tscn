@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=2]
+[gd_scene load_steps=18 format=2]
 
 [ext_resource path="res://scripts/grid.gd" type="Script" id=1]
 [ext_resource path="res://art/placeholders/background3d.png" type="Texture" id=2]
@@ -8,8 +8,9 @@
 [ext_resource path="res://scripts/game_manager.gd" type="Script" id=6]
 [ext_resource path="res://scenes/grid_hp.tscn" type="PackedScene" id=7]
 [ext_resource path="res://scenes/arena.tscn" type="PackedScene" id=8]
-[ext_resource path="res://art/theme.png" type="Texture" id=9]
+[ext_resource path="res://art/theme_natural_MADEIRA.png" type="Texture" id=9]
 [ext_resource path="res://art/fonts/monogram-extended.ttf" type="DynamicFontData" id=10]
+[ext_resource path="res://scenes/utils/touch_button.tscn" type="PackedScene" id=11]
 
 [sub_resource type="DynamicFont" id=1]
 size = 35
@@ -23,11 +24,47 @@ font_data = ExtResource( 5 )
 size = 29
 font_data = ExtResource( 5 )
 
+[sub_resource type="RectangleShape2D" id=4]
+resource_local_to_scene = true
+extents = Vector2( 0, 0 )
+
+[sub_resource type="RectangleShape2D" id=5]
+resource_local_to_scene = true
+extents = Vector2( 0, 0 )
+
+[sub_resource type="RectangleShape2D" id=6]
+resource_local_to_scene = true
+extents = Vector2( 0, 0 )
+
 [node name="game_window" type="Node2D"]
 script = ExtResource( 6 )
 
+[node name="grid_player1" type="Node2D" parent="."]
+script = ExtResource( 1 )
+width = 8
+height = 5
+x_start = 64
+y_start = 960
+offset = 64
+wrap_area = Rect2( 32, 672, 512, 320 )
+
+[node name="grid_hp" parent="grid_player1" instance=ExtResource( 7 )]
+z_index = 0
+
+[node name="grid_player2" type="Node2D" parent="."]
+script = ExtResource( 1 )
+width = 8
+height = 5
+x_start = 64
+y_start = 320
+offset = 64
+wrap_area = Rect2( 32, 32, 512, 320 )
+allegiance = Vector2( 0, 1 )
+
+[node name="grid_hp" parent="grid_player2" instance=ExtResource( 7 )]
+z_index = 0
+
 [node name="background" type="Node2D" parent="."]
-visible = false
 __meta__ = {
 "_edit_lock_": true
 }
@@ -56,53 +93,6 @@ position = Vector2( 288, 832 )
 texture = ExtResource( 2 )
 __meta__ = {
 "_edit_lock_": true
-}
-
-[node name="grid_player1" type="Node2D" parent="."]
-script = ExtResource( 1 )
-width = 8
-height = 5
-x_start = 64
-y_start = 960
-offset = 64
-wrap_area = Rect2( 32, 672, 512, 320 )
-
-[node name="grid_hp" parent="grid_player1" instance=ExtResource( 7 )]
-z_index = 0
-
-[node name="Label" type="Label" parent="grid_player1"]
-margin_left = 19.0487
-margin_top = 438.122
-margin_right = 61.0487
-margin_bottom = 452.122
-rect_scale = Vector2( 2, 2 )
-text = "locked"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="grid_player2" type="Node2D" parent="."]
-script = ExtResource( 1 )
-width = 8
-height = 5
-x_start = 64
-y_start = 320
-offset = 64
-wrap_area = Rect2( 32, 32, 512, 320 )
-allegiance = Vector2( 0, 1 )
-
-[node name="grid_hp" parent="grid_player2" instance=ExtResource( 7 )]
-z_index = 0
-
-[node name="Label" type="Label" parent="grid_player2"]
-margin_left = 15.874
-margin_top = 4.76221
-margin_right = 57.874
-margin_bottom = 18.7622
-rect_scale = Vector2( 2, 2 )
-text = "locked"
-__meta__ = {
-"_edit_use_anchors_": false
 }
 
 [node name="cover" type="Node2D" parent="."]
@@ -161,7 +151,7 @@ __meta__ = {
 }
 
 [node name="fps_label" type="Label" parent="."]
-visible = false
+modulate = Color( 0, 0, 0, 1 )
 margin_right = 40.0
 margin_bottom = 14.0
 custom_fonts/font = SubResource( 1 )
@@ -237,19 +227,18 @@ __meta__ = {
 
 [node name="exit_button" type="Button" parent="gameover_layer/Control"]
 pause_mode = 2
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
 margin_left = 200.0
-margin_top = 62.0
-margin_right = -200.0
-margin_bottom = 86.0
-grow_horizontal = 2
+margin_top = 574.0
+margin_right = 376.0
+margin_bottom = 609.0
 custom_fonts/font = SubResource( 3 )
 text = "exit"
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="touch_button" parent="gameover_layer/Control/exit_button" instance=ExtResource( 11 )]
+shape = SubResource( 4 )
 
 [node name="menu_layer" type="CanvasLayer" parent="."]
 
@@ -323,6 +312,9 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="touch_button" parent="menu_layer/Control/MarginContainer/VBoxContainer/continue_button" instance=ExtResource( 11 )]
+shape = SubResource( 5 )
+
 [node name="exit_button" type="Button" parent="menu_layer/Control/MarginContainer/VBoxContainer"]
 pause_mode = 2
 margin_top = 168.0
@@ -334,6 +326,10 @@ text = "exit"
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="touch_button" parent="menu_layer/Control/MarginContainer/VBoxContainer/exit_button" instance=ExtResource( 11 )]
+shape = SubResource( 6 )
+
 [connection signal="matched" from="grid_player1" to="." method="_on_grid_player1_matched"]
 [connection signal="gameover" from="grid_player1/grid_hp" to="." method="_on_grid_hp_gameover"]
 [connection signal="matched" from="grid_player2" to="." method="_on_grid_player2_matched"]

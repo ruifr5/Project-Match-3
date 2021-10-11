@@ -47,14 +47,14 @@ func attack_col(grid_position_x, damage = 3):
 	for y in height:
 		var new_y = y if get_parent().should_mirror() else height-1 - y
 		var tile = all_tiles[grid_position_x][new_y]
-		if tile.hp > 0:
-			tile.damage(0)
+		if !tile.destroyed:
+			tile.damage(damage)
 			break
 	check_gameover()
 
 
 func attack_position(grid_position, damage = 3):
-	all_tiles[grid_position.x][grid_position.y].damage(0)
+	all_tiles[grid_position.x][grid_position.y].damage(damage)
 	check_gameover()
 
 

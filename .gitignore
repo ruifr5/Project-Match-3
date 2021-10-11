@@ -9,6 +9,8 @@ export_presets.cfg
 
 art/Match 3 Assets/*
 
+# meus 
 *.apk
-
+Project Match 3 PvP.exe
+Project Match 3 PvP.pck
 launch.bat

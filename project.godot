@@ -57,7 +57,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Project Match 3 PvP"
-run/main_scene="res://scenes/home_window.tscn"
+run/main_scene="res://scenes/game_window.tscn"
 config/icon="res://icon.png"
 config/quit_on_go_back=false
 
@@ -91,10 +91,11 @@ ui_touch_2={
 
 [input_devices]
 
-pointing/emulate_mouse_from_touch=false
+pointing/emulate_touch_from_mouse=true
 
 [rendering]
 
-quality/2d/use_pixel_snap=true
+2d/snapping/use_gpu_pixel_snap=true
 environment/default_clear_color=Color( 0.301961, 0.301961, 0.301961, 1 )
 environment/default_environment="res://default_env.tres"
+quality/2d/use_pixel_snap=true

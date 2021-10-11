@@ -1,46 +1,87 @@
-[gd_scene load_steps=14 format=2]
+[gd_scene load_steps=26 format=2]
 
 [ext_resource path="res://scripts/home_window.gd" type="Script" id=1]
 [ext_resource path="res://art/fonts/monogram-extended.ttf" type="DynamicFontData" id=2]
 [ext_resource path="res://art/fonts/GravityBold8.ttf" type="DynamicFontData" id=3]
 [ext_resource path="res://art/fonts/GravityRegular5.ttf" type="DynamicFontData" id=4]
+[ext_resource path="res://scenes/utils/touch_button.tscn" type="PackedScene" id=5]
+[ext_resource path="res://scenes/utils/invisible_button.tscn" type="PackedScene" id=6]
 
 [sub_resource type="DynamicFont" id=1]
 resource_local_to_scene = true
 size = 64
 font_data = ExtResource( 3 )
 
-[sub_resource type="DynamicFont" id=2]
+[sub_resource type="RectangleShape2D" id=2]
+resource_local_to_scene = true
+extents = Vector2( 0, 0 )
+
+[sub_resource type="DynamicFont" id=3]
 size = 64
 font_data = ExtResource( 3 )
 
-[sub_resource type="DynamicFont" id=3]
+[sub_resource type="RectangleShape2D" id=4]
+resource_local_to_scene = true
+extents = Vector2( 0, 0 )
+
+[sub_resource type="RectangleShape2D" id=5]
+resource_local_to_scene = true
+extents = Vector2( 0, 0 )
+
+[sub_resource type="DynamicFont" id=6]
 size = 35
 font_data = ExtResource( 3 )
 
-[sub_resource type="DynamicFont" id=4]
+[sub_resource type="RectangleShape2D" id=7]
+resource_local_to_scene = true
+extents = Vector2( 0, 0 )
+
+[sub_resource type="DynamicFont" id=8]
 size = 73
 font_data = ExtResource( 3 )
 
-[sub_resource type="DynamicFont" id=5]
+[sub_resource type="DynamicFont" id=9]
 size = 50
 font_data = ExtResource( 2 )
 
-[sub_resource type="DynamicFont" id=6]
+[sub_resource type="DynamicFont" id=10]
 size = 40
 font_data = ExtResource( 2 )
 
-[sub_resource type="DynamicFont" id=7]
+[sub_resource type="DynamicFont" id=11]
 size = 50
 font_data = ExtResource( 3 )
 
-[sub_resource type="DynamicFont" id=8]
+[sub_resource type="RectangleShape2D" id=12]
+resource_local_to_scene = true
+extents = Vector2( 0, 0 )
+
+[sub_resource type="DynamicFont" id=13]
 size = 32
 font_data = ExtResource( 3 )
 
-[sub_resource type="DynamicFont" id=9]
+[sub_resource type="RectangleShape2D" id=14]
+resource_local_to_scene = true
+extents = Vector2( 0, 0 )
+
+[sub_resource type="DynamicFont" id=15]
 size = 17
 font_data = ExtResource( 4 )
+
+[sub_resource type="DynamicFont" id=16]
+font_data = ExtResource( 3 )
+
+[sub_resource type="DynamicFont" id=17]
+size = 13
+font_data = ExtResource( 4 )
+
+[sub_resource type="DynamicFont" id=18]
+size = 20
+font_data = ExtResource( 3 )
+
+[sub_resource type="RectangleShape2D" id=19]
+resource_local_to_scene = true
+extents = Vector2( 0, 0 )
 
 [node name="home_window" type="Control"]
 pause_mode = 2
@@ -85,29 +126,41 @@ margin_bottom = 370.0
 custom_fonts/font = SubResource( 1 )
 text = "Create"
 
+[node name="touch_button" parent="start_layer/MarginContainer/buttons/create_button" instance=ExtResource( 5 )]
+shape = SubResource( 2 )
+
 [node name="join_button" type="Button" parent="start_layer/MarginContainer/buttons"]
 margin_top = 394.0
 margin_right = 376.0
 margin_bottom = 464.0
-custom_fonts/font = SubResource( 2 )
+custom_fonts/font = SubResource( 3 )
 text = "Join"
+
+[node name="touch_button" parent="start_layer/MarginContainer/buttons/join_button" instance=ExtResource( 5 )]
+shape = SubResource( 4 )
 
 [node name="local_button" type="Button" parent="start_layer/MarginContainer/buttons"]
 margin_top = 488.0
 margin_right = 376.0
 margin_bottom = 558.0
-custom_fonts/font = SubResource( 2 )
+custom_fonts/font = SubResource( 3 )
 text = "Local"
+
+[node name="touch_button" parent="start_layer/MarginContainer/buttons/local_button" instance=ExtResource( 5 )]
+shape = SubResource( 5 )
 
 [node name="exit_button" type="Button" parent="start_layer/MarginContainer/buttons"]
 margin_top = 582.0
 margin_right = 376.0
 margin_bottom = 623.0
-custom_fonts/font = SubResource( 3 )
+custom_fonts/font = SubResource( 6 )
 text = "exit"
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="touch_button" parent="start_layer/MarginContainer/buttons/exit_button" instance=ExtResource( 5 )]
+shape = SubResource( 7 )
 
 [node name="confirm_layer" type="CanvasLayer" parent="."]
 
@@ -141,7 +194,7 @@ custom_constants/margin_bottom = 185
 margin_top = 70.0
 margin_right = 406.0
 margin_bottom = 143.0
-custom_fonts/font = SubResource( 4 )
+custom_fonts/font = SubResource( 8 )
 text = "CREATE"
 align = 1
 valign = 1
@@ -167,8 +220,8 @@ alignment = 1
 margin_top = 5.0
 margin_right = 95.0
 margin_bottom = 47.0
-custom_fonts/font = SubResource( 5 )
-text = "Name:"
+custom_fonts/font = SubResource( 9 )
+text = "Port:"
 align = 2
 valign = 1
 
@@ -176,7 +229,7 @@ valign = 1
 margin_top = 69.0
 margin_right = 95.0
 margin_bottom = 102.0
-custom_fonts/font = SubResource( 6 )
+custom_fonts/font = SubResource( 10 )
 text = "IP:"
 align = 2
 valign = 1
@@ -189,8 +242,8 @@ margin_bottom = 108.0
 [node name="name_form" type="LineEdit" parent="confirm_layer/MarginContainer/VBoxContainer/form/forms"]
 margin_right = 295.0
 margin_bottom = 52.0
-custom_fonts/font = SubResource( 5 )
-text = "teste"
+custom_fonts/font = SubResource( 9 )
+text = "31400"
 max_length = 12
 caret_blink = true
 __meta__ = {
@@ -201,10 +254,10 @@ __meta__ = {
 margin_top = 56.0
 margin_right = 295.0
 margin_bottom = 108.0
-custom_fonts/font = SubResource( 5 )
+custom_fonts/font = SubResource( 9 )
 custom_constants/minimum_spaces = 15
-text = "127.0.0.1"
 max_length = 15
+placeholder_text = "127.0.0.1"
 caret_blink = true
 __meta__ = {
 "_edit_use_anchors_": false
@@ -219,15 +272,21 @@ custom_constants/separation = 10
 [node name="confirm_button" type="Button" parent="confirm_layer/MarginContainer/VBoxContainer/VBoxContainer"]
 margin_right = 406.0
 margin_bottom = 56.0
-custom_fonts/font = SubResource( 7 )
+custom_fonts/font = SubResource( 11 )
 text = "Confirm"
+
+[node name="touch_button" parent="confirm_layer/MarginContainer/VBoxContainer/VBoxContainer/confirm_button" instance=ExtResource( 5 )]
+shape = SubResource( 12 )
 
 [node name="back_button" type="Button" parent="confirm_layer/MarginContainer/VBoxContainer/VBoxContainer"]
 margin_top = 66.0
 margin_right = 406.0
 margin_bottom = 104.0
-custom_fonts/font = SubResource( 8 )
+custom_fonts/font = SubResource( 13 )
 text = "Back"
+
+[node name="touch_button" parent="confirm_layer/MarginContainer/VBoxContainer/VBoxContainer/back_button" instance=ExtResource( 5 )]
+shape = SubResource( 14 )
 
 [node name="MarginContainer" type="MarginContainer" parent="confirm_layer/MarginContainer/VBoxContainer/VBoxContainer"]
 margin_top = 114.0
@@ -240,11 +299,113 @@ visible = false
 margin_top = 25.0
 margin_right = 406.0
 margin_bottom = 42.0
-custom_fonts/font = SubResource( 9 )
+custom_fonts/font = SubResource( 15 )
 text = "Waiting for connection..."
 align = 1
 valign = 1
 autowrap = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ip_container" type="VBoxContainer" parent="confirm_layer/MarginContainer/VBoxContainer"]
+visible = false
+margin_top = 615.0
+margin_right = 406.0
+margin_bottom = 753.0
+
+[node name="ip_container_labels" type="HBoxContainer" parent="confirm_layer/MarginContainer/VBoxContainer/ip_container"]
+visible = false
+margin_right = 406.0
+margin_bottom = 64.0
+alignment = 1
+
+[node name="labels" type="VBoxContainer" parent="confirm_layer/MarginContainer/VBoxContainer/ip_container/ip_container_labels"]
+margin_left = 65.0
+margin_right = 197.0
+margin_bottom = 64.0
+custom_constants/separation = 32
+alignment = 1
+
+[node name="local_ip_label" type="Label" parent="confirm_layer/MarginContainer/VBoxContainer/ip_container/ip_container_labels/labels"]
+margin_right = 132.0
+margin_bottom = 16.0
+custom_fonts/font = SubResource( 16 )
+text = "Local IP: "
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="public_ip_label" type="Label" parent="confirm_layer/MarginContainer/VBoxContainer/ip_container/ip_container_labels/labels"]
+margin_top = 48.0
+margin_right = 132.0
+margin_bottom = 64.0
+custom_fonts/font = SubResource( 16 )
+text = "Public IP: "
+align = 1
+valign = 1
+
+[node name="values" type="VBoxContainer" parent="confirm_layer/MarginContainer/VBoxContainer/ip_container/ip_container_labels"]
+margin_left = 201.0
+margin_right = 340.0
+margin_bottom = 64.0
+custom_constants/separation = 36
+
+[node name="local_ip_value_label" type="Label" parent="confirm_layer/MarginContainer/VBoxContainer/ip_container/ip_container_labels/values"]
+margin_right = 139.0
+margin_bottom = 13.0
+grow_horizontal = 2
+grow_vertical = 2
+custom_fonts/font = SubResource( 17 )
+text = " not found"
+valign = 1
+
+[node name="local_ip_value_label_button" parent="confirm_layer/MarginContainer/VBoxContainer/ip_container/ip_container_labels/values/local_ip_value_label" instance=ExtResource( 6 )]
+
+[node name="public_ip_value_label" type="Label" parent="confirm_layer/MarginContainer/VBoxContainer/ip_container/ip_container_labels/values"]
+margin_top = 49.0
+margin_right = 139.0
+margin_bottom = 62.0
+grow_horizontal = 2
+grow_vertical = 2
+custom_fonts/font = SubResource( 17 )
+text = " not found"
+valign = 1
+
+[node name="public_ip_value_label_button" parent="confirm_layer/MarginContainer/VBoxContainer/ip_container/ip_container_labels/values/public_ip_value_label" instance=ExtResource( 6 )]
+margin_right = 89.0
+
+[node name="ip_button_container" type="MarginContainer" parent="confirm_layer/MarginContainer/VBoxContainer/ip_container"]
+margin_top = 68.0
+margin_right = 406.0
+margin_bottom = 124.0
+custom_constants/margin_right = 100
+custom_constants/margin_top = 30
+custom_constants/margin_left = 100
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="toggle_ip_button" type="Button" parent="confirm_layer/MarginContainer/VBoxContainer/ip_container/ip_button_container"]
+margin_left = 100.0
+margin_top = 30.0
+margin_right = 306.0
+margin_bottom = 56.0
+custom_fonts/font = SubResource( 18 )
+text = "Show IP"
+
+[node name="touch_button" parent="confirm_layer/MarginContainer/VBoxContainer/ip_container/ip_button_container/toggle_ip_button" instance=ExtResource( 5 )]
+shape = SubResource( 19 )
+
+[node name="label" type="Label" parent="."]
+visible = false
+margin_left = 291.328
+margin_top = 817.415
+margin_right = 331.328
+margin_bottom = 831.415
+rect_scale = Vector2( 2, 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -254,3 +415,6 @@ __meta__ = {
 [connection signal="pressed" from="start_layer/MarginContainer/buttons/exit_button" to="." method="_on_exit_button_pressed"]
 [connection signal="pressed" from="confirm_layer/MarginContainer/VBoxContainer/VBoxContainer/confirm_button" to="." method="_on_confirm_button_pressed"]
 [connection signal="pressed" from="confirm_layer/MarginContainer/VBoxContainer/VBoxContainer/back_button" to="." method="_on_back_button_pressed"]
+[connection signal="pressed" from="confirm_layer/MarginContainer/VBoxContainer/ip_container/ip_container_labels/values/local_ip_value_label/local_ip_value_label_button" to="." method="_on_local_ip_value_label_button_pressed"]
+[connection signal="pressed" from="confirm_layer/MarginContainer/VBoxContainer/ip_container/ip_container_labels/values/public_ip_value_label/public_ip_value_label_button" to="." method="_on_public_ip_value_label_button_pressed"]
+[connection signal="pressed" from="confirm_layer/MarginContainer/VBoxContainer/ip_container/ip_button_container/toggle_ip_button" to="." method="_on_toggle_ip_button_pressed"]

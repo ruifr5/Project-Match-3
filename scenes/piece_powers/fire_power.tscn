@@ -5,7 +5,7 @@
 [sub_resource type="GDScript" id=1]
 script/source = "extends Power
 
-var alpha_values = [0.3, 1]
+var alpha_values = [0.1, 1.5]
 var _target_grid: MyGrid
 var particle_color = Color.orangered
 
@@ -20,7 +20,7 @@ func _exit_tree():
 
 
 func start_alpha_tween():
-	$alpha_tween.interpolate_property(self, \"modulate:a\", alpha_values[0], alpha_values[1], 0.5) 
+	$alpha_tween.interpolate_property(self, \"modulate:a\", alpha_values[0], alpha_values[1], 0.25) 
 	$alpha_tween.start()
 
 
@@ -67,7 +67,7 @@ texture = ExtResource( 1 )
 [node name="alpha_tween" type="Tween" parent="."]
 
 [node name="lifetime" type="Timer" parent="."]
-wait_time = 4.0
+wait_time = 10.0
 one_shot = true
 autostart = true
 [connection signal="tween_all_completed" from="alpha_tween" to="." method="_on_alpha_tween_tween_all_completed"]

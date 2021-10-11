@@ -3,7 +3,7 @@ extends Node2D
 export (int) var width
 export (int) var height
 export (int) var grid_width
-export (float) var unit_speed = 1
+export (float) var unit_speed = .9
 onready var offset = width / grid_width
 
 # unit variables
@@ -111,8 +111,8 @@ func touch_input_debug():
 #			queue_spawn_unit(1.5, Vector2.DOWN, "water")
 #			queue_spawn_unit(3, Vector2.UP, "earth")
 #			queue_spawn_unit(3.5, Vector2.UP, "water")
-			queue_spawn_unit(5, Vector2.DOWN, ["fire","water","earth"][floor(rand_range(0,3))])
-			queue_spawn_unit(2, Vector2.UP, ["fire","water","earth"][floor(rand_range(0,3))])
+			queue_spawn_unit(0, Vector2.DOWN, ["fire","water","earth"][floor(rand_range(0,3))])
+			queue_spawn_unit(1, Vector2.UP, ["fire","water","earth"][floor(rand_range(0,3))])
 
 
 func spawn_unit(grid_position_x, run_direction, color):
@@ -121,6 +121,7 @@ func spawn_unit(grid_position_x, run_direction, color):
 	var unit = possible_units[color].instance()
 	unit.allegiance = run_direction
 	unit.position = calc_unit_spawn_position(grid_position_x, run_direction)
+#	(unit as Unit).scale *= rand_range(0.8, 1) # size range
 	add_child(unit)
 	moving_units.append([unit, calc_target(unit, run_direction)])
 
@@ -137,7 +138,9 @@ func spawn_unit_debug(mouse_position, run_direction, color):
 
 func remove_from_moving_units(unit):
 	for entry in moving_units:
-		if entry[0] == unit:
+		if !is_instance_valid(entry[0]):
+			moving_units.erase(entry)
+		elif entry[0] == unit:
 			moving_units.erase(entry)
 			break
 
@@ -175,17 +178,19 @@ func move_unit(unit: KinematicBody2D, target: Vector2, move_type = MoveType.NORM
 		unit.die()
 	else:
 		var loser = unit.move_and_fight(direction.normalized(), speed)
-		if loser:
-			remove_from_moving_units(loser)
+		remove_from_moving_units(loser)
 
 
 func move_all_units():
 	for move_info in moving_units:
-		if move_info and move_info[0]:
-			var unit = move_info[0]
-			var target = calc_target(unit, unit.allegiance)
-			var move_type = MoveType.CORRECTION if target.y == unit.position.y else MoveType.NORMAL
-			move_unit(unit, target, move_type)
+		if move_info:
+			if is_instance_valid(move_info[0]):
+				var unit = move_info[0]
+				var target = calc_target(unit, unit.allegiance)
+				var move_type = MoveType.CORRECTION if target.y == unit.position.y else MoveType.NORMAL
+				move_unit(unit, target, move_type)
+			else:
+				moving_units.erase(move_info)
 
 
 # binds[0]: 0-> allegiance, 1-> index of spawn_area_block

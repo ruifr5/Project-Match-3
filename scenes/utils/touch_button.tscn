@@ -1,0 +1,31 @@
+[gd_scene load_steps=3 format=2]
+
+[sub_resource type="RectangleShape2D" id=1]
+resource_local_to_scene = true
+extents = Vector2( 0, 0 )
+
+[sub_resource type="GDScript" id=2]
+script/source = "extends TouchScreenButton
+
+
+func _ready():
+	var parent_size = (get_parent() as Button).rect_size
+	(shape as RectangleShape2D).extents = parent_size / 2
+	(get_parent() as Button).button_mask = 0
+
+
+func _on_touch_button_released():
+#	(get_parent() as Button).emit_signal(\"pressed\")
+	pass # Replace with function body.
+
+
+func _on_touch_button_pressed():
+	(get_parent() as Button).emit_signal(\"pressed\")
+	pass # Replace with function body.
+"
+
+[node name="touch_button" type="TouchScreenButton"]
+shape = SubResource( 1 )
+script = SubResource( 2 )
+[connection signal="pressed" from="." to="." method="_on_touch_button_pressed"]
+[connection signal="released" from="." to="." method="_on_touch_button_released"]
