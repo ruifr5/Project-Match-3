@@ -80,5 +80,6 @@ shape = SubResource( 2 )
 anims/die = SubResource( 3 )
 anims/walk_down = SubResource( 4 )
 anims/walk_up = SubResource( 5 )
+
 [connection signal="body_entered" from="aggro_area" to="." method="_on_aggro_radius_body_entered"]
 [connection signal="body_exited" from="aggro_area" to="." method="_on_aggro_radius_body_exited"]

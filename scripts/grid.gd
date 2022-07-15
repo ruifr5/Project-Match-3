@@ -36,7 +36,6 @@ var touch_idx
 var controlling = false
 var locked = false
 var spawning_pieces = false
-#var ignore_drag = false
 var missing_pieces = false
 var movement_start_grid_position
 var old_movement_direction
@@ -92,15 +91,13 @@ func should_mirror():
 remote func on_drag(event, rpc = false):
 	if rpc:
 		event = bytes2var(event, true)
-#	if ignore_drag:
-#		return
 	if locked:
 		if rpc:
 			mouse_event_queue.append(["on_drag", event])
 		return
-	if (event is InputEventMouseMotion or event is InputEventScreenDrag and touch_idx == event.index) && controlling:
-#		if get_tree().has_network_peer() and is_network_master():
-#			rpc_unreliable_id(Network.enemy_info.id, "on_drag", var2bytes(event, true), true)
+	if event is InputEventScreenDrag and touch_idx == event.index and controlling:
+		if get_tree().has_network_peer() and is_network_master():
+			rpc_id(Network.enemy_info.id, "on_drag", var2bytes(event, true), true)
 		
 		var	new_direction = clamp_movement_distance(zero_smallest_dimention(event.position - touch_down))
 		reset_old_moving_pieces_if_movement_changed_axis(new_direction)
@@ -116,7 +113,7 @@ remote func on_touch(event, rpc = false):
 	if event is InputEventScreenTouch:
 		if locked:
 			if rpc:
-				mouse_event_queue.append(["on_mouse_click", event])
+				mouse_event_queue.append(["on_touch", event])
 			return
 #		transmit move to remote
 		if get_tree().has_network_peer() and is_network_master():
@@ -126,14 +123,14 @@ remote func on_touch(event, rpc = false):
 		if event.pressed:
 			var temp_touch_down = event.position
 			var touch_down_grid_position = pixel_to_grid(temp_touch_down)
-			if is_in_grid(touch_down_grid_position) and !touch_idx:
+			if is_in_grid(touch_down_grid_position) and touch_idx == null:
 				touch_down = temp_touch_down
 				touch_idx = event.index
 				controlling = true
 				movement_start_grid_position = touch_down_grid_position
 		
 #		touch up
-		elif controlling:
+		elif controlling && touch_idx == event.index:
 			touch_idx = null
 			controlling = false
 			
@@ -152,49 +149,49 @@ remote func on_touch(event, rpc = false):
 			reset_pieces_pixel_position()
 
 
-remote func on_mouse_click(event, rpc = false):
-	if rpc:
-		event = bytes2var(event, true)
-#	todo: reorganizar estes Ifs
-	if event.is_action_pressed("ui_touch") or event.is_action_released("ui_touch") && controlling:
-		if locked:
-			if rpc:
-				mouse_event_queue.append(["on_mouse_click", event])
-			return
-		if get_tree().has_network_peer() and is_network_master():
-			rpc_id(Network.enemy_info.id, "on_mouse_click", var2bytes(event, true), true)
-	
-#	left click down
-	if event.is_action_pressed("ui_touch"):
-		touch_down = event.position
-		var touch_down_grid_position = pixel_to_grid(touch_down)
-		if is_in_grid(touch_down_grid_position):
-			controlling = true
-			movement_start_grid_position = touch_down_grid_position
-		
-#	left click up
-	if event.is_action_released("ui_touch") and controlling:
-		controlling = false
-		
-		var animation_time = 0
-		var	new_direction = clamp_movement_distance(zero_smallest_dimention(event.position - touch_down))
-		reset_old_moving_pieces_if_movement_changed_axis(new_direction)
-		new_direction = clamp_if_locked(new_direction)
-		move_pieces(new_direction, animation_time)
-		old_movement_direction = new_direction
-		
-		var grid_backup = all_pieces.duplicate(true)
-		all_pieces = get_array_pixel_position_converted_to_grid_position()
-#		reset positions if there was no match
-		if !find_matches():
-			all_pieces = grid_backup
-		reset_pieces_pixel_position()
-		highlight_matches()
-		
-#	right click down
-	if event.is_action_pressed("ui_touch_2"):
-		reset_pieces_pixel_position()
-		controlling = false
+#remote func on_mouse_click(event, rpc = false):
+#	if rpc:
+#		event = bytes2var(event, true)
+##	todo: reorganizar estes Ifs
+#	if event.is_action_pressed("ui_touch") or event.is_action_released("ui_touch") && controlling:
+#		if locked:
+#			if rpc:
+#				mouse_event_queue.append(["on_mouse_click", event])
+#			return
+#		if get_tree().has_network_peer() and is_network_master():
+#			rpc_id(Network.enemy_info.id, "on_mouse_click", var2bytes(event, true), true)
+#
+##	left click down
+#	if event.is_action_pressed("ui_touch"):
+#		touch_down = event.position
+#		var touch_down_grid_position = pixel_to_grid(touch_down)
+#		if is_in_grid(touch_down_grid_position):
+#			controlling = true
+#			movement_start_grid_position = touch_down_grid_position
+#
+##	left click up
+#	if event.is_action_released("ui_touch") and controlling:
+#		controlling = false
+#
+#		var animation_time = 0
+#		var	new_direction = clamp_movement_distance(zero_smallest_dimention(event.position - touch_down))
+#		reset_old_moving_pieces_if_movement_changed_axis(new_direction)
+#		new_direction = clamp_if_locked(new_direction)
+#		move_pieces(new_direction, animation_time)
+#		old_movement_direction = new_direction
+#
+#		var grid_backup = all_pieces.duplicate(true)
+#		all_pieces = get_array_pixel_position_converted_to_grid_position()
+##		reset positions if there was no match
+#		if !find_matches():
+#			all_pieces = grid_backup
+#		reset_pieces_pixel_position()
+#		highlight_matches()
+#
+##	right click down
+#	if event.is_action_pressed("ui_touch_2"):
+#		reset_pieces_pixel_position()
+#		controlling = false
 
 
 func clamp_if_locked(direction):
@@ -929,3 +926,9 @@ func add_all_pieces_to_parent():
 				config_screen_wrap(piece)
 				if should_mirror():
 					piece.flip_v_texture()
+
+
+func processGameEvent(event):
+	match event:
+		GameEvent.Event.GRID_MOVE:
+			return

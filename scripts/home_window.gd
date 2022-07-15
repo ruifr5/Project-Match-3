@@ -17,6 +17,8 @@ var create_not_join
 func _ready():
 	get_tree().paused = false
 	config_ip_labels()
+	go_to_start_view()
+
 
 
 func _notification(what):
@@ -46,13 +48,8 @@ func _on_join_button_pressed():
 
 func _on_back_button_pressed():
 	Network.terminate_connection()
-	start_layer.visible = true
-	confirm_layer.visible = false
-	ip_form.editable = true
-	name_form.editable = true
-	confirm_button.disabled = false
-	waiting_label.visible = false
-	ip_container.visible = false
+	go_to_start_view()
+
 
 
 func _on_confirm_button_pressed():
@@ -68,7 +65,28 @@ func _on_confirm_button_pressed():
 		Network.create_server(name_form.text)
 	else:
 #		join
-		Network.connect_to_server(ip_form.text, name_form.text)
+		var ip = ip_form.text if ip_form.text.length() > 0 else ip_form.placeholder_text
+		Network.connect_to_server(ip, name_form.text)
+
+
+func go_to_start_view():
+	start_layer.visible = true
+	confirm_layer.visible = false
+	ip_form.editable = true
+	name_form.editable = true
+	confirm_button.disabled = false
+	waiting_label.visible = false
+	ip_container.visible = false
+
+
+func go_to_start_view():
+	start_layer.visible = true
+	confirm_layer.visible = false
+	ip_form.editable = true
+	name_form.editable = true
+	confirm_button.disabled = false
+	waiting_label.visible = false
+	ip_container.visible = false
 
 
 func config_ip_labels():
@@ -83,7 +101,7 @@ func config_ip_labels():
 	http_request.request(Network.ip_url)
 
 
-func _on_ip_http_request_completed(result, response_code, headers, body):
+func _on_ip_http_request_completed(_result, response_code, _headers, body):
 	if response_code == 200:
 		var public_ip = body.get_string_from_utf8()
 		if public_ip and public_ip != "":
@@ -96,8 +114,10 @@ func _on_exit_button_pressed():
 
 
 func _on_local_button_pressed():
-	get_tree().change_scene("res://scenes/game_window.tscn")
-	queue_free()
+	if get_tree().change_scene("res://scenes/game_window.tscn") != OK:
+		printerr("error when trying to switch to game_window scene")
+	else:
+		queue_free()
 
 
 func _on_toggle_ip_button_pressed():

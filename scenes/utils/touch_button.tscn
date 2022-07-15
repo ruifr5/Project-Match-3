@@ -9,9 +9,9 @@ script/source = "extends TouchScreenButton
 
 
 func _ready():
-	var parent_size = (get_parent() as Button).rect_size
+	var parent_size = get_parent().rect_size
 	(shape as RectangleShape2D).extents = parent_size / 2
-	(get_parent() as Button).button_mask = 0
+	get_parent().button_mask = 0
 
 
 func _on_touch_button_released():
@@ -27,5 +27,6 @@ func _on_touch_button_pressed():
 [node name="touch_button" type="TouchScreenButton"]
 shape = SubResource( 1 )
 script = SubResource( 2 )
+
 [connection signal="pressed" from="." to="." method="_on_touch_button_pressed"]
 [connection signal="released" from="." to="." method="_on_touch_button_released"]

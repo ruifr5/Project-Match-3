@@ -23,6 +23,8 @@ var powers = {
 }
 
 var gameover = false
+var game_start_time = 0
+var game_events = []
 
 
 func _init():
@@ -30,7 +32,7 @@ func _init():
 
 
 func _enter_tree():
-	$arena.connect("end_reached", self, "_on_arena_end_reached")
+#	$arena.connect("end_reached", self, "_on_arena_end_reached")
 	$arena.possible_units = possible_units
 	$grid_player1.possible_pieces = possible_pieces
 	$grid_player2.possible_pieces = possible_pieces
@@ -43,6 +45,7 @@ func _process(_delta):
 
 func _ready():
 	quit_if_important_node_missing()
+	game_start_time = OS.get_ticks_msec()
 
 
 func _input(event):
@@ -52,6 +55,7 @@ func _input(event):
 
 func _notification(what):
 	if what == MainLoop.NOTIFICATION_WM_GO_BACK_REQUEST:
+		Network.terminate_connection()
 		go_to_home()
 
 
@@ -82,13 +86,13 @@ func center(grid_positions):
 
 
 func _on_grid_player1_matched(grid_positions, centered_position, color):
-	$arena.queue_spawn_unit(center(grid_positions).x, Vector2.UP, color)
+	$arena.on_grid_match(center(grid_positions).x, Vector2.UP, color, OS.get_ticks_msec())
 	$grid_player1/grid_hp.heal_positions(grid_positions)
 	activate_powers(color, grid_positions.size(), centered_position, $grid_player2)
 
 
 func _on_grid_player2_matched(grid_positions, centered_position, color):
-	$arena.queue_spawn_unit(center(grid_positions).x, Vector2.DOWN, color)
+	$arena.on_grid_match(center(grid_positions).x, Vector2.DOWN, color, OS.get_ticks_msec())
 	$grid_player2/grid_hp.heal_positions(grid_positions)
 	activate_powers(color, grid_positions.size(), centered_position, $grid_player1)
 
@@ -164,6 +168,7 @@ func load_data(data: Dictionary, serialized = false):
 
 
 func _on_exit_button_pressed():
+	Network.terminate_connection()
 	go_to_home()
 
 
@@ -172,5 +177,20 @@ func _on_continue_button_pressed():
 
 
 func go_to_home():
-	get_tree().change_scene("res://scenes/home_window.tscn")
+	if get_tree().change_scene("res://scenes/home_window.tscn") != OK:
+		printerr("error when trying to switch to home_window scene")
 	queue_free()
+
+
+func processGameEvent(event):
+	match event:
+		GameEvent.Event.UNIT_FIGHT, GameEvent.Event.UNIT_GOAL, GameEvent.Event.UNIT_SPAWN:
+			$arena.processGameEvent(event)
+		GameEvent.Event.GRID_MOVE, GameEvent.Event.POWER:
+			if true: # todo
+				$grid_player1.processGameEvent(event)
+			else:
+				$grid_player2.processGameEvent(event)
+				
+		
+

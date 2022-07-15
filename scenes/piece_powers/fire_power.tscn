@@ -8,6 +8,7 @@ script/source = "extends Power
 var alpha_values = [0.1, 1.5]
 var _target_grid: MyGrid
 var particle_color = Color.orangered
+var is_particle_done = false
 
 func _ready():
 	start_alpha_tween()
@@ -30,6 +31,8 @@ func _on_alpha_tween_tween_all_completed():
 
 
 func _on_lifetime_timeout():
+	while(!is_particle_done):
+		continue
 	queue_free()
 
 
@@ -54,7 +57,12 @@ func exec_target(target_grid, origin, target):
 
 
 func process_execute(piece, origin):
-	emit_particle_effect(origin, piece.position, particle_color)
+	var particle_time = emit_particle_effect(origin, piece.position, particle_color)
+	
+#	wait timer
+	yield(get_tree().create_timer(particle_time), \"timeout\")
+	
+	is_particle_done = true
 "
 
 [node name="fire_power" type="Node2D"]

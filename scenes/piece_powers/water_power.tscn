@@ -25,7 +25,7 @@ func exec_target(target_grid, origin, target):
 
 
 func process_execute(piece, origin):
-	emit_particle_effect(origin, piece.position, particle_color)
+	var _particle_time = emit_particle_effect(origin, piece.position, particle_color)
 	
 #	freeze piece
 	piece.lock()

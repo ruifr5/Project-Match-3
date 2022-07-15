@@ -257,7 +257,7 @@ margin_bottom = 108.0
 custom_fonts/font = SubResource( 9 )
 custom_constants/minimum_spaces = 15
 max_length = 15
-placeholder_text = "127.0.0.1"
+placeholder_text = "192.168.1.158"
 caret_blink = true
 __meta__ = {
 "_edit_use_anchors_": false
@@ -310,9 +310,9 @@ __meta__ = {
 
 [node name="ip_container" type="VBoxContainer" parent="confirm_layer/MarginContainer/VBoxContainer"]
 visible = false
-margin_top = 615.0
+margin_top = 629.0
 margin_right = 406.0
-margin_bottom = 753.0
+margin_bottom = 685.0
 
 [node name="ip_container_labels" type="HBoxContainer" parent="confirm_layer/MarginContainer/VBoxContainer/ip_container"]
 visible = false
@@ -378,9 +378,8 @@ valign = 1
 margin_right = 89.0
 
 [node name="ip_button_container" type="MarginContainer" parent="confirm_layer/MarginContainer/VBoxContainer/ip_container"]
-margin_top = 68.0
 margin_right = 406.0
-margin_bottom = 124.0
+margin_bottom = 56.0
 custom_constants/margin_right = 100
 custom_constants/margin_top = 30
 custom_constants/margin_left = 100
@@ -409,6 +408,7 @@ rect_scale = Vector2( 2, 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
 [connection signal="pressed" from="start_layer/MarginContainer/buttons/create_button" to="." method="_on_create_button_pressed"]
 [connection signal="pressed" from="start_layer/MarginContainer/buttons/join_button" to="." method="_on_join_button_pressed"]
 [connection signal="pressed" from="start_layer/MarginContainer/buttons/local_button" to="." method="_on_local_button_pressed"]

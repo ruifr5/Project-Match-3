@@ -17,11 +17,11 @@ var my_info = { name = null }
 
 func _ready():
 #	 Connect all functions
-	get_tree().connect("network_peer_connected", self, "_player_connected")
-	get_tree().connect("network_peer_disconnected", self, "_player_disconnected")
-	get_tree().connect("connected_to_server", self, "_connected_ok")
-	get_tree().connect("connection_failed", self, "_connected_fail")
-	get_tree().connect("server_disconnected", self, "_server_disconnected")
+	var _err1 = get_tree().connect("network_peer_connected", self, "_player_connected")
+	var _err2 = get_tree().connect("network_peer_disconnected", self, "_player_disconnected")
+	var _err3 = get_tree().connect("connected_to_server", self, "_connected_ok")
+	var _err4 = get_tree().connect("connection_failed", self, "_connected_fail")
+	var _err5 = get_tree().connect("server_disconnected", self, "_server_disconnected")
 	var http_request = HTTPRequest.new()
 	http_request.name = "http_request"
 	add_child(http_request)
@@ -29,7 +29,10 @@ func _ready():
 
 func _exit_tree():
 	if upnp and upnp.get_device_count() > 0:
-		upnp.delete_port_mapping(server_port)
+		if upnp.delete_port_mapping(server_port) != UPNP.UPNP_RESULT_SUCCESS:
+			printerr("error trying to delete port mapping")
+	if thread.is_active():
+		thread.wait_to_finish()
 
 
 func _player_connected(id):
@@ -49,17 +52,20 @@ func _connected_ok():
 
 func _server_disconnected():
 	# Server kicked us; show error and abort.
+	terminate_connection()
 	return_to_home()
 
 
 func _connected_fail():
-	pass # Could not even connect to server; abort.
+	# Could not even connect to server; abort.
+	terminate_connection()
 
 
 func return_to_home():
 	if has_node("/root/game_window"):
 		get_node("/root/game_window").queue_free()
-	get_tree().change_scene("res://scenes/home_window.tscn")
+	if get_tree().change_scene("res://scenes/home_window.tscn") != OK:
+		printerr("error when trying to switch to home_window scene")
 	call_deferred("terminate_connection")
 
 
@@ -83,21 +89,22 @@ func create_server(user_name):
 	var peer = NetworkedMultiplayerENet.new()
 	peer.create_server(int(user_name), 1)
 	get_tree().set_network_peer(peer)
-	thread.start(self, "upnp_open_port", null)
+	if !thread.is_active():
+		thread.start(self, "upnp_open_port", null)
 
 
-func upnp_open_port(a):
+func upnp_open_port(_not_used):
 	upnp = UPNP.new()
 	var result = upnp.discover()
 	if upnp.get_device_count() > 0:
-		upnp.add_port_mapping(int(server_port))
+		var resp = upnp.add_port_mapping(int(server_port))
+		if resp != UPNP.UPNP_RESULT_SUCCESS:
+			printerr("error on \"upnp_open_port\": ", resp)
 	print("discover response: ", result)
 #	var my_ipv4 = upnp.query_external_address()
 
 
 func connect_to_server(server_ip, user_name):
-	if server_ip == "":
-		server_ip = "127.0.0.1"
 	my_info.name = user_name
 	var peer = NetworkedMultiplayerENet.new()
 	peer.create_client(server_ip, int(user_name))

@@ -11,9 +11,11 @@ export (float) var chase_speed_multiplier = 1.5
 
 
 var state
-var allegiance: Vector2 # aka what direction am I walking in (up or down)
+var allegiance: Vector2 # what direction am I walking in (up or down)
 var enemies_near = []
 var closest_enemy: Unit
+var speed
+var spawn_time
 
 enum State {MOVING, CHASING, FLEEING, FIGHTING, DYING}
 enum Result {WIN, LOSE, TIE}
@@ -24,8 +26,9 @@ func _ready():
 	play_walk_animation()
 
 
-func _process(_delta):
+func _process(delta):
 	process_enemies()
+	move_and_fight(delta)
 
 
 func process_enemies():
@@ -82,7 +85,8 @@ func fight(enemy: Unit) -> Unit:
 
 
 # return loser, if tied returns null
-func move_and_fight(dir: Vector2, speed: float):
+func move_and_fight(delta):
+	var dir = allegiance
 	var base_speed = Vector2(speed, speed)
 	if state == State.DYING:
 		return
@@ -104,7 +108,7 @@ func move_and_fight(dir: Vector2, speed: float):
 	else:
 		state = State.MOVING
 #	move and if colision happens fight
-	var collision = move_and_collide(dir * base_speed)
+	var collision = move_and_collide(dir * base_speed * delta)
 	if collision && allegiance != collision.collider.allegiance && collision.collider.state != State.DYING:
 #		who loses?
 		return fight(collision.collider)
@@ -142,3 +146,21 @@ func _on_aggro_radius_body_entered(body):
 func _on_aggro_radius_body_exited(body):
 	if body in enemies_near:
 		enemies_near.erase(body)
+
+
+func serialize():
+	return {
+		c = color, # color
+		s = state, # state
+		a = "u" if allegiance == Vector2.UP else "d", # allegiance
+		px = self.position.x, # position x
+		py = self.position.y, # position y
+	}
+
+
+static func unserialize(unit) -> Unit:
+	var toReturn = load("res://scenes/units/%s_unit.tscn" % unit.c).instance()
+	toReturn.state = unit.s
+	toReturn.allegiance = unit.a
+	toReturn.position = Vector2(unit.px, unit.py)
+	return toReturn
