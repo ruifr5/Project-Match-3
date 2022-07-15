@@ -329,11 +329,11 @@ __meta__ = {
 
 [node name="touch_button" parent="menu_layer/Control/MarginContainer/VBoxContainer/exit_button" instance=ExtResource( 11 )]
 shape = SubResource( 6 )
-
 [connection signal="matched" from="grid_player1" to="." method="_on_grid_player1_matched"]
 [connection signal="gameover" from="grid_player1/grid_hp" to="." method="_on_grid_hp_gameover"]
 [connection signal="matched" from="grid_player2" to="." method="_on_grid_player2_matched"]
 [connection signal="gameover" from="grid_player2/grid_hp" to="." method="_on_grid_hp_gameover"]
+[connection signal="end_reached" from="arena" to="." method="_on_arena_end_reached"]
 [connection signal="pressed" from="gameover_layer/Control/exit_button" to="." method="_on_exit_button_pressed"]
 [connection signal="pressed" from="menu_layer/Control/MarginContainer/VBoxContainer/continue_button" to="." method="_on_continue_button_pressed"]
 [connection signal="pressed" from="menu_layer/Control/MarginContainer/VBoxContainer/exit_button" to="." method="_on_exit_button_pressed"]

@@ -10,6 +10,11 @@ config_version=4
 
 _global_script_classes=[ {
 "base": "Node",
+"class": "GameEvent",
+"language": "GDScript",
+"path": "res://scripts/game_event.gd"
+}, {
+"base": "Node",
 "class": "GameWindow",
 "language": "GDScript",
 "path": "res://scripts/game_manager.gd"
@@ -45,6 +50,7 @@ _global_script_classes=[ {
 "path": "res://scripts/unit.gd"
 } ]
 _global_script_class_icons={
+"GameEvent": "",
 "GameWindow": "",
 "GridHP": "",
 "GridHPTile": "",
@@ -57,7 +63,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Project Match 3 PvP"
-run/main_scene="res://scenes/game_window.tscn"
+run/main_scene="res://scenes/home_window.tscn"
 config/icon="res://icon.png"
 config/quit_on_go_back=false
 
@@ -95,7 +101,7 @@ pointing/emulate_touch_from_mouse=true
 
 [rendering]
 
-2d/snapping/use_gpu_pixel_snap=true
+quality/2d/use_pixel_snap=true
 environment/default_clear_color=Color( 0.301961, 0.301961, 0.301961, 1 )
 environment/default_environment="res://default_env.tres"
-quality/2d/use_pixel_snap=true
+2d/snapping/use_gpu_pixel_snap=true
